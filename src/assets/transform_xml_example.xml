@@ -1,0 +1,53 @@
+<basque-wikidata>
+<entry xmlns:lxnm='http://www.lexonomy.eu/' lxnm:entryID='605'>
+		<headword wdid="http://www.wikidata.org/entity/L184383">sinesle</headword>
+		<partOfSpeech>n</partOfSpeech>
+		<sense wdid="http://www.wikidata.org/entity/L184383-S1">
+			<definition>sinestuna</definition>
+		</sense>
+	</entry>
+<entry xmlns:lxnm='http://www.lexonomy.eu/' lxnm:entryID='606'>
+		<headword wdid="http://www.wikidata.org/entity/L184384">eragile</headword>
+		<partOfSpeech>n</partOfSpeech>
+		<sense wdid="http://www.wikidata.org/entity/L184384-S1">
+			<definition>eragiten duena</definition>
+		</sense>
+	</entry>
+<entry xmlns:lxnm='http://www.lexonomy.eu/' lxnm:entryID='607'>
+		<headword wdid="http://www.wikidata.org/entity/L184385">kili-kili</headword>
+		<partOfSpeech>n</partOfSpeech>
+		<sense wdid="http://www.wikidata.org/entity/L184385-S1">
+			<definition>kilika</definition>
+		</sense>
+	</entry>
+<entry xmlns:lxnm='http://www.lexonomy.eu/' lxnm:entryID='608'>
+		<headword wdid="http://www.wikidata.org/entity/L184387">minutu</headword>
+		<partOfSpeech>n</partOfSpeech>
+		<sense wdid="http://www.wikidata.org/entity/L184387-S1">
+			<definition>orduaren hirurogeirena, hirurogei segundoz osatua (min)</definition>
+		</sense>
+		<sense wdid="http://www.wikidata.org/entity/L184387-S2">
+			<definition>(Mat.) arku eta angeluak neurtzeko unitatea, graduaren hirurogeirenaren baliokidea</definition>
+		</sense>
+	</entry>
+<entry xmlns:lxnm='http://www.lexonomy.eu/' lxnm:entryID='609'>
+		<headword wdid="http://www.wikidata.org/entity/L184388">indize</headword>
+		<partOfSpeech>n</partOfSpeech>
+		<sense wdid="http://www.wikidata.org/entity/L184388-S1">
+			<definition>beste zenbaki, ikur edo adierazpen matematiko baten gainean, azpian, eskuinean edo ezkerrean idatzirik edo hari beste nolabait atxikirik dagoen zenbaki, ikur edo adierazpena, haren posizioa ordenazio batean, haren adarkatzea edo idazkera matematikoa adierazten duena.</definition>
+		</sense>
+		<sense wdid="http://www.wikidata.org/entity/L184388-S2">
+			<definition>denboran zehar, magnitude baten edo magnitude-sail baten bilakaera sintekikoki neurtzen duen kantitatea</definition>
+		</sense>
+		<sense wdid="http://www.wikidata.org/entity/L184388-S3">
+			<definition>zerbaiten dimentsioaren ratioa beste dimentsio batekiko</definition>
+		</sense>
+	</entry>
+<entry xmlns:lxnm='http://www.lexonomy.eu/' lxnm:entryID='610'>
+		<headword wdid="http://www.wikidata.org/entity/L184389">gazte</headword>
+		<partOfSpeech>n</partOfSpeech>
+		<sense wdid="http://www.wikidata.org/entity/L184389-S1">
+			<definition>haurtzaroaren eta adin nagusiaren artean dagoena</definition>
+		</sense>
+	</entry>
+</basque-wikidata>
