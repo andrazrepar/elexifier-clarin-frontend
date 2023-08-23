@@ -32,6 +32,17 @@ import {
 } from "./routes/organisations";
 import { CreateOrganisation } from "./routes/create-organisation";
 
+import { UserTasks, loader as tasksLoader } from "./routes/tasks";
+
+import { ViewDictionary, loader as dictionaryLoader } from "./routes/view";
+
+import { LinkDictionary, loader as linkingLoader } from "./routes/link";
+
+import {
+	DownloadDictionary,
+	loader as downloadLoader,
+} from "./routes/download";
+
 const router = createBrowserRouter([
 	{
 		path: "/",
@@ -78,6 +89,24 @@ const router = createBrowserRouter([
 						action: transformAction,
 					},
 					{
+						path: "organisation/:organisationId/dictionaries/:dictionaryId/view",
+						element: <ViewDictionary />,
+						errorElement: <ErrorPage />,
+						loader: dictionaryLoader,
+					},
+					{
+						path: "organisation/:organisationId/dictionaries/:dictionaryId/link",
+						element: <LinkDictionary />,
+						errorElement: <ErrorPage />,
+						loader: linkingLoader,
+					},
+					{
+						path: "organisation/:organisationId/dictionaries/:dictionaryId/download",
+						element: <DownloadDictionary />,
+						errorElement: <ErrorPage />,
+						loader: downloadLoader,
+					},
+					{
 						path: "organisation/:organisationId/members",
 						element: <OrganisationMembers />,
 						errorElement: <ErrorPage />,
@@ -97,6 +126,12 @@ const router = createBrowserRouter([
 					{
 						path: "organisation/create",
 						element: <CreateOrganisation />,
+						errorElement: <ErrorPage />,
+					},
+					{
+						path: "tasks",
+						element: <UserTasks />,
+						loader: tasksLoader,
 						errorElement: <ErrorPage />,
 					},
 				],

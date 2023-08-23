@@ -2,6 +2,7 @@ import { EleCollapsibleElement } from "../ele-collapsible";
 import { EleInputField } from "../ele-input-field";
 import { EleDropdownField } from "../ele-dropdown-field";
 import { attributeDefaultValues } from "../../dmlex-spec";
+import React, { useState } from "react";
 
 export const EleTransformationTranscriptionElement: React.FC<any> = ({
 	id,
@@ -11,6 +12,7 @@ export const EleTransformationTranscriptionElement: React.FC<any> = ({
 	className = "text-sm font-medium text-indigo-600", // default class
 	...props
 }) => {
+	const [isAdvancedVisible, setAdvancedVisible] = useState(false);
 	return (
 		<EleCollapsibleElement
 			id={id}
@@ -20,52 +22,65 @@ export const EleTransformationTranscriptionElement: React.FC<any> = ({
 			className={className}
 		>
 			<EleInputField
-				label="inSelector"
+				label="Path"
 				name={`${id}-inSelector`}
 				className="text-sm font-medium text-indigo-600"
 				existingValue={props.existingValues?.inSelector}
 			/>
 
-			<EleDropdownField
-				label="attribute"
-				name={`${id}-attribute`}
-				className="flex-grow py-2 px-3 rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
-				options={attributeDefaultValues}
-				defaultValue={attributeDefaultValues.innerText}
-			/>
+			<EleCollapsibleElement
+				id={`${id}-advanced`}
+				isExpanded={isAdvancedVisible}
+				handleExpand={(event) => {
+					event.stopPropagation();
+					setAdvancedVisible(!isAdvancedVisible);
+				}}
+				label="Advanced"
+			>
+				<EleDropdownField
+					label="Attribute"
+					name={`${id}-attribute`}
+					className="flex-grow py-2 px-3 rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
+					options={attributeDefaultValues}
+					defaultValue={
+						attributeDefaultValues.find((item) => item.name === "innerText")
+							?.value
+					}
+				/>
 
-			<EleInputField
-				label="regex"
-				name={`${id}-regex`}
-				className="text-sm font-medium text-indigo-600"
-				existingValue={
-					props.existingValues?.textVals?.find(
-						(el: any) => el.outElement === "text"
-					)?.regex
-				}
-			/>
+				<EleInputField
+					label="Regex"
+					name={`${id}-regex`}
+					className="text-sm font-medium text-indigo-600"
+					existingValue={
+						props.existingValues?.textVals?.find(
+							(el: any) => el.outElement === "text"
+						)?.regex
+					}
+				/>
 
-			<EleInputField
-				label="regexGroup"
-				name={`${id}-regexGroup`}
-				className="text-sm font-medium text-indigo-600"
-				existingValue={
-					props.existingValues?.textVals?.find(
-						(el: any) => el.outElement === "text"
-					)?.regexGroup
-				}
-			/>
+				<EleInputField
+					label="RegexGroup"
+					name={`${id}-regexGroup`}
+					className="text-sm font-medium text-indigo-600"
+					existingValue={
+						props.existingValues?.textVals?.find(
+							(el: any) => el.outElement === "text"
+						)?.regexGroup
+					}
+				/>
 
-			<EleInputField
-				label="scheme"
-				name={`${id}-scheme`}
-				className="text-sm font-medium text-indigo-600"
-				existingValue={
-					props.existingValues?.textVals?.find(
-						(el: any) => el.outElement === "scheme"
-					)?.regexGroup
-				}
-			/>
+				<EleInputField
+					label="Scheme"
+					name={`${id}-scheme`}
+					className="text-sm font-medium text-indigo-600"
+					existingValue={
+						props.existingValues?.textVals?.find(
+							(el: any) => el.outElement === "scheme"
+						)?.regexGroup
+					}
+				/>
+			</EleCollapsibleElement>
 		</EleCollapsibleElement>
 	);
 };

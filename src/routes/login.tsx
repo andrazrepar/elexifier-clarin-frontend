@@ -10,7 +10,8 @@ import {
 import { useState } from "react";
 import { z, ZodError } from "zod";
 import { setToken } from "../shared/auth";
-import eleApiService from "../shared/ele-api-service";
+//import eleApiService from "../shared/ele-api-service";
+import { getToken } from "../shared/auth";
 
 const loginSchema = z.object({
 	email: z.string().email(),
@@ -22,7 +23,7 @@ export async function action({ request }) {
 	const token = formData.get("token");
 	const userEmail = formData.get("userEmail");
 
-	console.log(token, userEmail);
+	console.log("email", token, userEmail);
 
 	setToken(token);
 
@@ -44,13 +45,33 @@ export function Login() {
 				email: email?.value,
 				password: password?.value,
 			});
-
+			/*
 			const loginResult = await eleApiService.login({
 				email: parsedValues.email,
 				password: parsedValues.password,
 			});
+            */
+
+			const myHeaders = new Headers();
+			myHeaders.append("Content-Type", "application/json");
+
+			const requestOptions: object = {
+				method: "POST",
+				headers: myHeaders,
+				body: JSON.stringify({
+					email: parsedValues.email,
+					password: parsedValues.password,
+				}),
+				redirect: "follow",
+			};
+
+			const loginResult: Response = await fetch(
+				`${import.meta.env.VITE_BACKEND_BASE_URL}/user/login`,
+				requestOptions
+			);
 
 			const resolvedLoginResult = await loginResult.json();
+			console.log(resolvedLoginResult);
 
 			if (loginResult.status === 401) {
 				return setErrors({

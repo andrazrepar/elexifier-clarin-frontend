@@ -33,34 +33,8 @@ export default function NewDictionaryModal(props) {
 						>
 							<Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
 								<Form onSubmit={props.handleSubmit}>
-									<EleInputField
-										name="title"
-										label="Title:*"
-										required={true}
-										type="text"
-									/>
-									<EleInputField
-										name="acronym"
-										label="Acronym:*"
-										required={true}
-										type="text"
-									/>
-									<EleInputField
-										name="citation"
-										label="Citation:"
-										type="text"
-									/>
-									<EleInputField
-										name="publisher"
-										label="Publisher:"
-										type="text"
-									/>
-									<EleInputField name="entry" label="Entry:" type="text" />
-									<EleInputField
-										name="headword"
-										label="Headword:"
-										type="text"
-									/>
+									<EleInputField name="entry" label="Entry" type="text" />
+									<EleInputField name="headword" label="Headword" type="text" />
 									<div className="mb-4">
 										<label
 											htmlFor="file"

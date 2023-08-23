@@ -6,6 +6,8 @@ import eleApiService from "../shared/ele-api-service";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	try {
+		// reload
+
 		const organisationsResult = await eleApiService.listOrganisations();
 		return organisationsResult.json();
 	} catch (error) {

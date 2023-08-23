@@ -28,7 +28,7 @@ export function EleInputField({
 }: EleInputFieldProps) {
 	return (
 		<div className={`flex items-center mt-2 mb-2 ${className}`}>
-			{label && <label className="text-xs text-gray-600 mr-2">{label}:</label>}
+			{label && <label className="text-sm text-gray-600 mr-2">{label}:</label>}
 			<input
 				type={type ? type : "text"}
 				name={name}

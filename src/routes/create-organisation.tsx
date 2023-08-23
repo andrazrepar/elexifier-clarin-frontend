@@ -40,7 +40,7 @@ export function CreateOrganisation() {
 
 			setErrors(null);
 			return navigate(
-				`/organisation/${resolvedCreateOrganisationResult.id}/dictionaries`
+				`/app/organisation/${resolvedCreateOrganisationResult.id}/dictionaries`
 			);
 		} catch (error) {
 			console.log(error);

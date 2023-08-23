@@ -1,6 +1,7 @@
 import { getToken } from "./auth";
 import { redirect } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { generateDefaultTransformation } from "./dmlex-spec";
 
 interface RequestOptions {
 	method: string;
@@ -11,21 +12,22 @@ interface RequestOptions {
 
 class eleApiService {
 	baseUrl: string;
-	token: string | null;
+	//token: string | null;
 
 	constructor() {
-		console.log(import.meta);
 		this.baseUrl = import.meta.env.VITE_BACKEND_BASE_URL || "";
-		//this.baseUrl = "http://127.0.0.1:5000";
 
 		if (this.baseUrl === "") {
 			throw new Error("BACKEND_BASE_URL is not set");
 		}
-		this.token = getToken();
 	}
 
 	redictToLogin() {
 		return redirect("/login");
+	}
+
+	get token() {
+		return getToken();
 	}
 
 	async login(body: object): Promise<Response> {
@@ -86,8 +88,6 @@ class eleApiService {
 		const myHeaders = new Headers();
 		myHeaders.append("Authorization", this.token || "");
 		myHeaders.append("Content-Type", "application/json");
-
-		console.log("token", this.token);
 
 		const requestOptions: RequestOptions = {
 			method: "GET",
@@ -186,10 +186,7 @@ class eleApiService {
 			}
 			const resData = await response.json();
 
-			console.log(resData.message);
-
 			if (resData.message === "File upload successful") {
-				console.log("File upload successful");
 				return {
 					success: true,
 					message: "File upload successful",
@@ -199,6 +196,20 @@ class eleApiService {
 		}
 
 		return { success: false, message: "File upload failed" };
+	}
+
+	async deleteFile(dictionaryId: string): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const requestOptions: RequestOptions = {
+			method: "DELETE",
+			headers: myHeaders,
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(`/file/${dictionaryId}`, requestOptions);
 	}
 
 	async listEntries(
@@ -269,12 +280,11 @@ class eleApiService {
 		return await this.makeRequest(url, requestOptions);
 	}
 
-	async createTransformation(
+	async updateDictionary(
+		dictionaryId: String,
 		entry: string,
 		lemma: string,
-		lexicographicResource: string,
-		name: string,
-		dictionaryId: Number
+		dictionaryMetadata: object
 	): Promise<Response> {
 		const myHeaders = new Headers();
 		myHeaders.append("Authorization", this.token || "");
@@ -283,27 +293,45 @@ class eleApiService {
 		const body = {
 			entry: entry,
 			lemma: lemma,
-			lexicographic_resource: lexicographicResource,
-			name: name,
-			file_id: dictionaryId,
-			transformation: {
-				inSelector: lexicographicResource,
-				outElement: "lexicographicResource",
-				children: [
-					{
-						inSelector: `.//${entry}`,
-						outElement: "entry",
-						textVals: [
-							{
-								inSelector: `.//${lemma}`,
-								outElement: "headword",
-								attribute: "{http://elex.is/wp1/teiLex0Mapper/meta}innerText",
-							},
-						],
-					},
-				],
-			},
+			dictionary_metadata: dictionaryMetadata,
 		};
+
+		const url = `/file/${dictionaryId}`;
+
+		const requestOptions: RequestOptions = {
+			method: "POST",
+			headers: myHeaders,
+			body: JSON.stringify(body),
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(url, requestOptions);
+	}
+
+	async createTransformation(
+		entry: string,
+		lemma: string,
+		lexicographicResource: string,
+		name: string,
+		dictionaryId: Number,
+		dictionaryTitle: string,
+		dictionaryUri: string,
+		dictionaryLanguage: string
+	): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const body = generateDefaultTransformation(
+			entry,
+			lemma,
+			lexicographicResource,
+			name,
+			dictionaryId,
+			dictionaryTitle,
+			dictionaryUri,
+			dictionaryLanguage
+		);
 
 		const requestOptions: RequestOptions = {
 			method: "POST",
@@ -350,11 +378,48 @@ class eleApiService {
 		return await this.makeRequest(url, requestOptions);
 	}
 
-	async updateTransformation(
+	async resetTransformation(
 		transformationId: String,
 		entry: string,
 		lemma: string,
 		lexicographicResource: string,
+		name: string,
+		dictionaryId: Number,
+		dictionaryTitle: string,
+		dictionaryUri: string,
+		dictionaryLanguage: string
+	): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const body = generateDefaultTransformation(
+			entry,
+			lemma,
+			lexicographicResource,
+			name,
+			dictionaryId,
+			dictionaryTitle,
+			dictionaryUri,
+			dictionaryLanguage
+		);
+
+		const url = `/transformation/${transformationId}`;
+
+		const requestOptions: RequestOptions = {
+			method: "POST",
+			headers: myHeaders,
+			body: JSON.stringify(body),
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(url, requestOptions);
+	}
+
+	async updateTransformation(
+		transformationId: String,
+		entry: string,
+		lemma: string,
 		name: string,
 		transformation: object
 	): Promise<Response> {
@@ -379,6 +444,34 @@ class eleApiService {
 		};
 
 		return await this.makeRequest(url, requestOptions);
+	}
+
+	async listTasks(): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const requestOptions: RequestOptions = {
+			method: "GET",
+			headers: myHeaders,
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(`/task`, requestOptions);
+	}
+
+	async getDmEntry(entryId: string): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const requestOptions: RequestOptions = {
+			method: "GET",
+			headers: myHeaders,
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(`/dmlex/entry/${entryId}`, requestOptions);
 	}
 
 	// You can add more methods for other API calls here, all using makeRequest

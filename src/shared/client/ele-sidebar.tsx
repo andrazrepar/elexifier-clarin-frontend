@@ -38,7 +38,7 @@ export const EleSidebarDesktop = () => {
 				<div className="mt-5 flex flex-1 flex-col">
 					<nav className="flex-1 space-y-1 px-2 pb-4">
 						<NavLink
-							to={`/organisation/create`}
+							to={`/app/organisation/create`}
 							className={({ isActive }) =>
 								`${
 									isActive

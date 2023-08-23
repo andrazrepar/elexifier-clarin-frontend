@@ -3,6 +3,7 @@ import { EleInputField } from "../ele-input-field";
 import { EleDropdownField } from "../ele-dropdown-field";
 import { attributeDefaultValues } from "../../dmlex-spec";
 import JsonResult from "../ele-json-result";
+import React, { useState } from "react";
 
 export const EleTransformationPronounciationElement: React.FC<any> = ({
 	id,
@@ -12,6 +13,7 @@ export const EleTransformationPronounciationElement: React.FC<any> = ({
 	className = "text-sm font-medium text-indigo-600", // default class
 	...props
 }) => {
+	const [isAdvancedVisible, setAdvancedVisible] = useState(false);
 	return (
 		<EleCollapsibleElement
 			id={id}
@@ -20,26 +22,37 @@ export const EleTransformationPronounciationElement: React.FC<any> = ({
 			label={label}
 			className={className}
 		>
-			{id === "entry-pronounciation" && (
+			{/*{id === "entry-pronounciation" && (
 				<JsonResult result={props.entry?.pronounciation} />
-			)}{" "}
+			)}{" "}*/}
 			{/* only show top level pronounciation (for entry) */}
 			<EleInputField
-				label="inSelector"
+				label="Path"
 				name={`${id}-inSelector`}
 				className="text-sm font-medium text-indigo-600"
 				existingValue={props.existingValues?.inSelector}
 			/>
-			<EleInputField
-				label="soundFile"
-				name={`${id}-soundFile`}
-				className="text-sm font-medium text-indigo-600"
-				existingValue={
-					props.existingValues?.textVals?.find(
-						(el: any) => el.outElement === "soundFile"
-					)?.constant
-				}
-			/>
+			<EleCollapsibleElement
+				id={`${id}-advanced`}
+				isExpanded={isAdvancedVisible}
+				className="mb-4"
+				handleExpand={(event) => {
+					event.stopPropagation();
+					setAdvancedVisible(!isAdvancedVisible);
+				}}
+				label="Advanced"
+			>
+				<EleInputField
+					label="Sound File"
+					name={`${id}-soundFile`}
+					className="text-sm font-medium text-indigo-600"
+					existingValue={
+						props.existingValues?.textVals?.find(
+							(el: any) => el.outElement === "soundFile"
+						)?.constant
+					}
+				/>
+			</EleCollapsibleElement>
 			{props.children}
 		</EleCollapsibleElement>
 	);

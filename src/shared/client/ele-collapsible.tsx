@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
 interface EleCollapsibleElementProps {
 	id: string;
@@ -22,14 +22,18 @@ export const EleCollapsibleElement: React.FC<EleCollapsibleElementProps> = ({
 		onClick={(e) => handleExpand(e, id)}
 	>
 		<div className={`flex items-center`}>
+			<ChevronRightIcon
+				className={`h-5 w-5 text-gray-600 ml-2 ${
+					isExpanded ? "rotate-90" : ""
+				}`}
+			/>
 			<div>{label}</div>
-			{isExpanded ? (
-				<ChevronDownIcon className="h-5 w-5 text-gray-600 ml-2" />
-			) : (
-				<ChevronDownIcon className="h-5 w-5 text-gray-600 transform rotate-180 ml-2" />
-			)}
 		</div>
-		<div className={`pl-4 mt-2 mb-2 ${isExpanded ? "block" : "hidden"}`}>
+		<div
+			className={`pl-8 pr-4 mt-2 mb-2 w-full ${
+				isExpanded ? "block pb-8 ml-4" : "hidden"
+			}`}
+		>
 			{children}
 		</div>
 	</div>
