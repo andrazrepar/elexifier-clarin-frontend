@@ -15,6 +15,8 @@ import { TransformTree3 } from "../shared/client/ele-transform-tree3";
 import EleTabs from "../shared/client/ele-tabs";
 import EleButtonGroup from "../shared/client/ele-button-group";
 import { EleDropdownField } from "../shared/client/ele-dropdown-field";
+import { EleSearchableDropdownField } from "../shared/client/ele-searchable-dropdown-field";
+import EleToggle from "../shared/client/ele-toggle";
 
 async function applyTransformationToEntry(
 	transformationId: Number,
@@ -69,6 +71,72 @@ function removeNullInSelector(obj: any) {
 	return obj;
 }
 
+function setSimpleOrAdvanced(
+	formData: FormData,
+	advancedMode: boolean
+): FormData {
+	// Convert formData to a plain object
+	let objectData: { [key: string]: any } = {};
+	formData.forEach((value, key) => {
+		objectData[key] = value;
+	});
+
+	// Apply the setSimpleOrAdvanced function
+	if (advancedMode === true) {
+		Object.keys(objectData).forEach((key) => {
+			if (key.endsWith("inSelector-simple")) {
+				delete objectData[key];
+			} else if (key.endsWith("inSelector-advanced")) {
+				objectData[key.replace("-advanced", "")] = objectData[key];
+				delete objectData[key];
+			}
+		});
+	} else {
+		Object.keys(objectData).forEach((key) => {
+			if (key.endsWith("inSelector-advanced")) {
+				delete objectData[key];
+			} else if (key.endsWith("inSelector-simple")) {
+				objectData[key.replace("-simple", "")] = objectData[key];
+				delete objectData[key];
+			}
+		});
+	}
+
+	// Convert the object back to FormData
+	let updatedFormData = new FormData();
+	Object.keys(objectData).forEach((key) => {
+		updatedFormData.append(key, objectData[key]);
+	});
+
+	return updatedFormData;
+}
+
+function createXlatAndFieldsToUpdate(formData: FormData): {
+	xlat: { [key: string]: any };
+	fieldsToUpdate: { [key: string]: any };
+} {
+	let fieldsToUpdate: { [key: string]: any } = Object.fromEntries(formData);
+
+	// create xlat mapping and remove from fieldsToUpdate
+	let xlat: { [key: string]: any } = {};
+	Object.keys(fieldsToUpdate).forEach((key) => {
+		if (key.startsWith("ud-mapping")) {
+			// Remove 'ud-mapping-' from the key and add the key-value pair to xlat
+			let newKey = key.replace("ud-mapping-", "");
+			let udValue = fieldsToUpdate[key].toLowerCase();
+
+			if (udValue !== "") {
+				xlat[newKey] = udValue;
+			}
+
+			// Remove the key-value pair from fieldsToUpdate
+			delete fieldsToUpdate[key];
+		}
+	});
+
+	return { xlat, fieldsToUpdate };
+}
+
 function generateDefaultTransformationName(dictName: string) {
 	const now = new Date();
 	const formattedDate =
@@ -94,10 +162,11 @@ type TransformLoaderData = {
 	dictionaryMetadata: object;
 	transformationId: Number;
 	transformationData: object;
+	paths: object;
 };
 
 export async function action({ request, params }) {
-	const formData = await request.formData();
+	let formData = await request.formData();
 
 	let namespaces = null; // or some array of namespaces
 	let dictSelector = formData.get("dictionary-lexicographic-resource");
@@ -111,10 +180,11 @@ export async function action({ request, params }) {
 	const dictionaryTitle = formData.get("dictionary-title");
 	const dictionaryUri = formData.get("dictionary-uri");
 	const dictionaryLanguage = formData.get("dictionary-language");
+	const advancedMode = JSON.parse(formData.get("advanced-mode"));
 
 	console.log("intent", formData.get("intent"));
 
-	console.log("lemma", lemmaSelector);
+	console.log("lemma", typeof advancedMode);
 
 	const intent = formData.get("intent");
 
@@ -141,35 +211,11 @@ export async function action({ request, params }) {
 			}
 
 			// update transformation
-
-			let fieldsToUpdate: { [key: string]: any } = Object.fromEntries(formData);
-
-			// create xlat mapping and remove from fieldsToUpdate
-			let xlat: { [key: string]: any } = {};
-			Object.keys(fieldsToUpdate).forEach((key) => {
-				if (key.startsWith("ud-mapping")) {
-					// Remove 'ud-mapping-' from the key and add the key-value pair to xlat
-					let newKey = key.replace("ud-mapping-", "");
-					let udValue = fieldsToUpdate[key].toLowerCase();
-
-					if (udValue !== "") {
-						xlat[newKey] = udValue;
-					}
-
-					// Remove the key-value pair from fieldsToUpdate
-					delete fieldsToUpdate[key];
-				}
-			});
-
+			const { xlat, fieldsToUpdate } = createXlatAndFieldsToUpdate(formData);
 			console.log("xlat2", xlat);
-			console.log("fieldsToUpdate", fieldsToUpdate);
 
-			// remove empty fields
-			Object.keys(fieldsToUpdate).forEach((key) => {
-				if (fieldsToUpdate[key] === "") {
-					delete fieldsToUpdate[key];
-				}
-			});
+			// set simple or advanced
+			formData = setSimpleOrAdvanced(formData, advancedMode);
 
 			// Call createDmlexSpec
 			let result = createDmlexSpec({
@@ -184,8 +230,9 @@ export async function action({ request, params }) {
 				xlat,
 			});
 
+			// Remove null values from the selector
 			const newResult = removeNullInSelector(result);
-			console.log("newResult", newResult);
+
 			const transformationResponse = await eleApiService.getTransformation(
 				transformationId
 			);
@@ -201,7 +248,8 @@ export async function action({ request, params }) {
 					entrySelector,
 					lemmaSelector,
 					transformationName,
-					newResult
+					newResult,
+					advancedMode
 				);
 			const updatedTransformation = await updatedTranformationResponse.json();
 
@@ -297,13 +345,13 @@ export async function loader({ params }) {
 
 	const firstEntry = await firstEntryResponse.json();
 
-	// parse xml and get root - TODO: implement this in the backend as a field in the database
+	// parse xml and get root - TODO: implement this in the backend as a field in the database (field exists, let's wait for some feedback)
 	let parser = new DOMParser();
 	let xmlDoc = parser.parseFromString(firstEntry.text, "text/xml");
 	let root = xmlDoc.documentElement;
 	const dictionaryLexicographicResource = `${root.nodeName}`;
 
-	// get transformation id, if not transformation exists, create one, otherwise load from the database
+	// get transformation id, if no transformation exists, create one, otherwise load from the database
 	let transformationId;
 
 	if (!dictionary.default_transformation_id) {
@@ -344,6 +392,13 @@ export async function loader({ params }) {
 		firstEntryId
 	);
 
+	const pathsResponse = await eleApiService.getEntryPaths(
+		dictionaryId,
+		firstEntryId
+	);
+	const paths = await pathsResponse.json();
+	console.log("paths", paths);
+
 	return {
 		entries,
 		firstEntry,
@@ -355,6 +410,7 @@ export async function loader({ params }) {
 		dictionaryMetadata,
 		transformationId,
 		transformationData,
+		paths,
 	};
 }
 
@@ -370,6 +426,7 @@ export function TransformDictionary() {
 		dictionaryMetadata,
 		transformationId,
 		transformationData,
+		paths,
 	} = useLoaderData() as TransformLoaderData;
 
 	const [selectedEntry, setSelectedEntry] = useState({
@@ -383,14 +440,52 @@ export function TransformDictionary() {
 	const [entriesList, setEntriesList] = useState(() => {
 		let options = [];
 		entries.entries.forEach((entry) => {
-			options.push({ name: entry.lemma, value: entry.id });
+			options.push({ label: entry.lemma, value: entry.id });
 		});
 		return options;
 	});
 
+	const [entryPaths, setEntryPaths] = useState(() => {
+		let options = [];
+		paths.paths.forEach((path: string) => {
+			options.push({ label: path, value: `.//${path}` });
+		});
+		return options;
+	});
+
+	const [isAdvancedVisible, setAdvancedVisible] = useState(
+		transformationData.advanced_mode
+	);
+
 	const { organisationId, dictionaryId } = useParams();
 
 	const prettyXml = beautify(firstEntry.text);
+
+	const handleEntryChange = async (
+		selectedOption: React.ChangeEvent<HTMLSelectElement>
+	) => {
+		// Parse the selected entry ID from the selected option's value
+		const selectedEntryId = parseInt(selectedOption.value, 10);
+
+		// Fetch the transformed entry data
+		const transformedEntry = await applyTransformationToEntry(
+			transformationId,
+			selectedEntryId
+		);
+
+		// Fetch the original entry data
+		const entryResponse = await eleApiService.getEntry(
+			dictionaryId,
+			selectedEntryId
+		);
+		const entry = await entryResponse.json();
+
+		// Update the state with the new selected entry data
+		setSelectedEntry({
+			originalXml: beautify(entry.text),
+			transformedJson: transformedEntry,
+		});
+	};
 
 	let buttons = [
 		{
@@ -457,47 +552,35 @@ export function TransformDictionary() {
 						value={JSON.stringify(dictionaryMetadata)}
 					/>
 
+					<input
+						type="hidden"
+						name="advanced-mode"
+						value={isAdvancedVisible.toString()}
+					/>
+
 					<div className="flex justify-between items-center mb-4">
-						<EleDropdownField
+						<EleSearchableDropdownField
 							label="Entry"
 							name="select-entry"
 							options={entriesList}
-							showCustom={false}
-							onChange={async (event: React.ChangeEvent<HTMLSelectElement>) => {
-								console.log(entriesList);
-								console.log(event.target.value);
-								const selectedEntryId = parseInt(event.target.value, 10);
-
-								const applyTransformation = async () => {
-									const transformedEntry = await applyTransformationToEntry(
-										transformationId,
-										selectedEntryId
-									);
-
-									const entryResponse = await eleApiService.getEntry(
-										dictionaryId,
-										selectedEntryId
-									);
-
-									const entry = await entryResponse.json();
-
-									setSelectedEntry({
-										originalXml: beautify(entry.text),
-										transformedJson: transformedEntry,
-									});
-									console.log("selected", transformedEntry);
-								};
-
-								applyTransformation();
-							}}
+							isClearable={false}
+							existingValue={entriesList[0].value}
+							onChange={handleEntryChange}
 						/>
 
+						<EleToggle
+							enabled={isAdvancedVisible}
+							setEnabled={setAdvancedVisible}
+						/>
 						<EleButtonGroup items={buttons} />
 					</div>
 					<TransformTree3
 						entry={selectedEntry.transformedJson}
 						transformation={transformation}
 						dictionaryMetadata={dictionaryMetadata}
+						entryPaths={entryPaths}
+						isAdvancedVisible={isAdvancedVisible}
+						dictionaryId={dictionaryId}
 					/>
 				</Form>
 			</div>

@@ -421,7 +421,8 @@ class eleApiService {
 		entry: string,
 		lemma: string,
 		name: string,
-		transformation: object
+		transformation: object,
+		advancedMode: boolean
 	): Promise<Response> {
 		const myHeaders = new Headers();
 		myHeaders.append("Authorization", this.token || "");
@@ -432,6 +433,7 @@ class eleApiService {
 			entry: entry,
 			lemma: lemma,
 			transformation: transformation,
+			advanced_mode: advancedMode,
 		};
 
 		const url = `/transformation/${transformationId}`;
@@ -472,6 +474,50 @@ class eleApiService {
 		};
 
 		return await this.makeRequest(`/dmlex/entry/${entryId}`, requestOptions);
+	}
+
+	async getEntryPaths(fileId: string, entryId: string): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const requestOptions: RequestOptions = {
+			method: "GET",
+			headers: myHeaders,
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(
+			`/file/${fileId}/entry/${entryId}/paths`,
+			requestOptions
+		);
+	}
+
+	async getPosElements(
+		fileId: string,
+		posElement: string,
+		attributeName?: string
+	): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const params = new URLSearchParams();
+		params.append("pos_element", posElement);
+		if (attributeName) {
+			params.append("attribute_name", attributeName);
+		}
+
+		const requestOptions: RequestOptions = {
+			method: "GET",
+			headers: myHeaders,
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(
+			`/file/${fileId}/pos?${params.toString()}`,
+			requestOptions
+		);
 	}
 
 	// You can add more methods for other API calls here, all using makeRequest

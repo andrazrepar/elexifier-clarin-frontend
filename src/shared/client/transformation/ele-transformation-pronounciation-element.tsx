@@ -4,6 +4,7 @@ import { EleDropdownField } from "../ele-dropdown-field";
 import { attributeDefaultValues } from "../../dmlex-spec";
 import JsonResult from "../ele-json-result";
 import React, { useState } from "react";
+import { EleSearchableDropdownField } from "../ele-searchable-dropdown-field";
 
 export const EleTransformationPronounciationElement: React.FC<any> = ({
 	id,
@@ -13,7 +14,6 @@ export const EleTransformationPronounciationElement: React.FC<any> = ({
 	className = "text-sm font-medium text-indigo-600", // default class
 	...props
 }) => {
-	const [isAdvancedVisible, setAdvancedVisible] = useState(false);
 	return (
 		<EleCollapsibleElement
 			id={id}
@@ -22,26 +22,23 @@ export const EleTransformationPronounciationElement: React.FC<any> = ({
 			label={label}
 			className={className}
 		>
-			{/*{id === "entry-pronounciation" && (
-				<JsonResult result={props.entry?.pronounciation} />
-			)}{" "}*/}
-			{/* only show top level pronounciation (for entry) */}
-			<EleInputField
+			<EleSearchableDropdownField
 				label="Path"
-				name={`${id}-inSelector`}
-				className="text-sm font-medium text-indigo-600"
+				name={`${id}-inSelector-simple`}
+				options={props.entryPaths}
 				existingValue={props.existingValues?.inSelector}
+				className={`flex items-center mt-2 mb-2 ${
+					props.isAdvancedVisible ? "hidden" : ""
+				}`}
 			/>
-			<EleCollapsibleElement
-				id={`${id}-advanced`}
-				isExpanded={isAdvancedVisible}
-				className="mb-4"
-				handleExpand={(event) => {
-					event.stopPropagation();
-					setAdvancedVisible(!isAdvancedVisible);
-				}}
-				label="Advanced"
-			>
+
+			<div className={`${!props.isAdvancedVisible ? "hidden" : ""}`}>
+				<EleInputField
+					label="Path"
+					name={`${id}-inSelector-advanced`}
+					className="text-sm font-medium text-indigo-600"
+					existingValue={props.existingValues?.inSelector}
+				/>
 				<EleInputField
 					label="Sound File"
 					name={`${id}-soundFile`}
@@ -52,7 +49,7 @@ export const EleTransformationPronounciationElement: React.FC<any> = ({
 						)?.constant
 					}
 				/>
-			</EleCollapsibleElement>
+			</div>
 			{props.children}
 		</EleCollapsibleElement>
 	);

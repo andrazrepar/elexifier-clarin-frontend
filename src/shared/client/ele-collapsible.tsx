@@ -31,7 +31,7 @@ export const EleCollapsibleElement: React.FC<EleCollapsibleElementProps> = ({
 		</div>
 		<div
 			className={`pl-8 pr-4 mt-2 mb-2 w-full ${
-				isExpanded ? "block pb-8 ml-4" : "hidden"
+				isExpanded ? "block ml-4" : "hidden"
 			}`}
 		>
 			{children}

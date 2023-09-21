@@ -63,6 +63,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 				handleExpand={toggleParentElement}
 				label="headword"
 				entry={props.entry}
+				entryPaths={props.entryPaths}
+				isAdvancedVisible={props.isAdvancedVisible}
 				existingValues={props.transformation.children
 					?.find((el: any) => el.outElement === "entry")
 					?.textVals.find((el: any) => el.outElement === "headword")}
@@ -74,6 +76,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 				handleExpand={toggleParentElement}
 				label="homographNumber"
 				entry={props.entry}
+				entryPaths={props.entryPaths}
+				isAdvancedVisible={props.isAdvancedVisible}
 				existingValues={props.transformation.children
 					?.find((el: any) => el.outElement === "entry")
 					?.textVals.find((el: any) => el.outElement === "homographNumber")}
@@ -85,6 +89,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 				handleExpand={toggleParentElement}
 				label="partOfSpeech"
 				entry={props.entry}
+				entryPaths={props.entryPaths}
+				isAdvancedVisible={props.isAdvancedVisible}
 				existingValues={props.transformation.children
 					?.find((el: any) => el.outElement === "entry")
 					?.children?.find((el: any) => el.outElement === "partOfSpeech")}
@@ -96,6 +102,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 				handleExpand={toggleParentElement}
 				label="label"
 				entry={props.entry}
+				entryPaths={props.entryPaths}
+				isAdvancedVisible={props.isAdvancedVisible}
 				existingValues={props.transformation.children
 					?.find((el: any) => el.outElement === "entry")
 					?.children?.find((el: any) => el.outElement === "label")}
@@ -107,6 +115,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 				handleExpand={toggleParentElement}
 				label="pronounciation"
 				entry={props.entry}
+				entryPaths={props.entryPaths}
+				isAdvancedVisible={props.isAdvancedVisible}
 				existingValues={props.transformation.children
 					?.find((el: any) => el.outElement === "entry")
 					?.children?.find((el: any) => el.outElement === "pronunciation")}
@@ -116,6 +126,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 					isSubElementExpanded={isChildExpanded}
 					handleExpand={toggleChildElement}
 					label="label"
+					entryPaths={props.entryPaths}
+					isAdvancedVisible={props.isAdvancedVisible}
 					existingValues={props.transformation.children
 						?.find((el: any) => el.outElement === "entry")
 						?.children?.find((el: any) => el.outElement === "pronunciation")
@@ -127,6 +139,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 					isSubElementExpanded={isChildExpanded}
 					handleExpand={toggleChildElement}
 					label="transcription"
+					entryPaths={props.entryPaths}
+					isAdvancedVisible={props.isAdvancedVisible}
 					existingValues={props.transformation.children
 						?.find((el: any) => el.outElement === "entry")
 						?.children?.find((el: any) => el.outElement === "pronunciation")
@@ -140,6 +154,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 				handleExpand={toggleParentElement}
 				label="inflectedForm"
 				entry={props.entry}
+				entryPaths={props.entryPaths}
+				isAdvancedVisible={props.isAdvancedVisible}
 				existingValues={props.transformation.children
 					?.find((el: any) => el.outElement === "entry")
 					?.children?.find((el: any) => el.outElement === "inflectedForm")}
@@ -149,6 +165,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 					isSubElementExpanded={isChildExpanded}
 					handleExpand={toggleChildElement}
 					label="label"
+					entryPaths={props.entryPaths}
+					isAdvancedVisible={props.isAdvancedVisible}
 					existingValues={props.transformation.children
 						?.find((el: any) => el.outElement === "entry")
 						?.children?.find((el: any) => el.outElement === "inflectedForm")
@@ -159,6 +177,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 					isSubElementExpanded={isChildExpanded}
 					handleExpand={toggleChildElement}
 					label="pronounciation"
+					entryPaths={props.entryPaths}
+					isAdvancedVisible={props.isAdvancedVisible}
 					existingValues={props.transformation.children
 						?.find((el: any) => el.outElement === "entry")
 						?.children?.find((el: any) => el.outElement === "inflectedForm")
@@ -169,6 +189,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 						isSubElementExpanded={isChildExpanded}
 						handleExpand={toggleChildElement}
 						label="label"
+						entryPaths={props.entryPaths}
+						isAdvancedVisible={props.isAdvancedVisible}
 						existingValues={props.transformation.children
 							?.find((el: any) => el.outElement === "entry")
 							?.children?.find((el: any) => el.outElement === "inflectedForm")
@@ -181,6 +203,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 						isSubElementExpanded={isChildExpanded}
 						handleExpand={toggleChildElement}
 						label="transcription"
+						entryPaths={props.entryPaths}
+						isAdvancedVisible={props.isAdvancedVisible}
 						existingValues={props.transformation.children
 							?.find((el: any) => el.outElement === "entry")
 							?.children?.find((el: any) => el.outElement === "inflectedForm")
@@ -196,6 +220,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 				handleExpand={toggleParentElement}
 				label="sense"
 				entry={props.entry}
+				entryPaths={props.entryPaths}
+				isAdvancedVisible={props.isAdvancedVisible}
 				existingValues={props.transformation.children
 					?.find((el: any) => el.outElement === "entry")
 					?.children?.find((el: any) => el.outElement === "sense")}
@@ -205,6 +231,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 					isSubElementExpanded={isChildExpanded}
 					handleExpand={toggleChildElement}
 					label="label"
+					entryPaths={props.entryPaths}
+					isAdvancedVisible={props.isAdvancedVisible}
 					existingValues={props.transformation.children
 						?.find((el: any) => el.outElement === "entry")
 						?.children?.find((el: any) => el.outElement === "sense")
@@ -216,6 +244,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 					isSubElementExpanded={isChildExpanded}
 					handleExpand={toggleChildElement}
 					label="definition"
+					entryPaths={props.entryPaths}
+					isAdvancedVisible={props.isAdvancedVisible}
 					existingValues={props.transformation.children
 						?.find((el: any) => el.outElement === "entry")
 						?.children?.find((el: any) => el.outElement === "sense")
@@ -227,6 +257,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 					isSubElementExpanded={isChildExpanded}
 					handleExpand={toggleChildElement}
 					label="example"
+					entryPaths={props.entryPaths}
+					isAdvancedVisible={props.isAdvancedVisible}
 					existingValues={props.transformation.children
 						?.find((el: any) => el.outElement === "entry")
 						?.children?.find((el: any) => el.outElement === "sense")
@@ -237,6 +269,8 @@ export const EleTransformationParameters: React.FC<any> = ({
 						isSubElementExpanded={isChildExpanded}
 						handleExpand={toggleChildElement}
 						label="label"
+						entryPaths={props.entryPaths}
+						isAdvancedVisible={props.isAdvancedVisible}
 						existingValues={props.transformation.children
 							?.find((el: any) => el.outElement === "entry")
 							?.children?.find((el: any) => el.outElement === "sense")

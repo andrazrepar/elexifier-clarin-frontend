@@ -1,44 +1,28 @@
 import { EleCollapsibleElement } from "./client/ele-collapsible";
 import { EleDropdownField } from "./client/ele-dropdown-field";
-
-const UD_TAGS2 = {
-	ADJ: "ADJ",
-	ADV: "ADV",
-	INTJ: "INTJ",
-	NOUN: "NOUN",
-	PROPN: "PROPN",
-	VERB: "VERB",
-	ADP: "ADP",
-	AUX: "AUX",
-	CCONJ: "CCONJ",
-	DET: "DET",
-	NUM: "NUM",
-	PART: "PART",
-	PRON: "PRON",
-	SCONJ: "SCONJ",
-	PUNCT: "PUNCT",
-	SYM: "SYM",
-	X: "X",
-};
+import { useState } from "react";
+import eleApiService from "./ele-api-service";
+import { EleButton } from "./client/ele-button";
+import { attributeDefaultValues } from "./dmlex-spec";
 
 const UD_TAGS = [
-	{ name: "ADJ", value: "ADJ" },
-	{ name: "ADV", value: "ADV" },
-	{ name: "INTJ", value: "INTJ" },
-	{ name: "NOUN", value: "NOUN" },
-	{ name: "PROPN", value: "PROPN" },
-	{ name: "VERB", value: "VERB" },
-	{ name: "ADP", value: "ADP" },
-	{ name: "AUX", value: "AUX" },
-	{ name: "CCONJ", value: "CCONJ" },
-	{ name: "DET", value: "DET" },
-	{ name: "NUM", value: "NUM" },
-	{ name: "PART", value: "PART" },
-	{ name: "PRON", value: "PRON" },
-	{ name: "SCONJ", value: "SCONJ" },
-	{ name: "PUNCT", value: "PUNCT" },
-	{ name: "SYM", value: "SYM" },
-	{ name: "X", value: "X" },
+	{ label: "ADJ", value: "ADJ" },
+	{ label: "ADV", value: "ADV" },
+	{ label: "INTJ", value: "INTJ" },
+	{ label: "NOUN", value: "NOUN" },
+	{ label: "PROPN", value: "PROPN" },
+	{ label: "VERB", value: "VERB" },
+	{ label: "ADP", value: "ADP" },
+	{ label: "AUX", value: "AUX" },
+	{ label: "CCONJ", value: "CCONJ" },
+	{ label: "DET", value: "DET" },
+	{ label: "NUM", value: "NUM" },
+	{ label: "PART", value: "PART" },
+	{ label: "PRON", value: "PRON" },
+	{ label: "SCONJ", value: "SCONJ" },
+	{ label: "PUNCT", value: "PUNCT" },
+	{ label: "SYM", value: "SYM" },
+	{ label: "X", value: "X" },
 ];
 
 const custom_tags = ["substantief", "adjectief", "werkwoord", "bijwoord"];
@@ -51,7 +35,37 @@ export const ElePosMapping: React.FC<any> = ({
 	className = "text-xl font-semibold text-indigo-600 mb-3", // default class
 	...props
 }) => {
-	console.log("xlat1", props.xlat);
+	console.log(props.transformation.children);
+
+	const posElement = props.transformation.children
+		?.find((el: any) => el.outElement === "entry")
+		?.children?.find((el: any) => el.outElement === "partOfSpeech");
+
+	const xlat = posElement?.textVals[0].xlat;
+
+	console.log("xlat", xlat);
+
+	const [customTags, setCustomTags] = useState<string[]>(
+		xlat ? Object.keys(xlat) : []
+	);
+
+	const handleLoadCustomTags = async (event: React.MouseEvent) => {
+		event.stopPropagation(); // prevent event from bubbling up
+
+		let customTagsFromFileResponse = await eleApiService.getPosElements(
+			props.dictionaryId,
+			posElement?.inSelector
+		);
+
+		let customTagsFromFile = await customTagsFromFileResponse.json();
+		console.log(customTagsFromFile);
+
+		// append custom tags to the list of tags and make the list unique
+		setCustomTags(
+			Array.from(new Set([...customTags, ...customTagsFromFile.pos_elements]))
+		);
+	};
+
 	return (
 		<EleCollapsibleElement
 			id={id}
@@ -60,22 +74,26 @@ export const ElePosMapping: React.FC<any> = ({
 			label={label}
 			className={className}
 		>
-			{custom_tags.map((tag, index) => (
+			{customTags.map((tag, index) => (
 				<EleDropdownField
 					key={index}
 					name={`ud-mapping-${tag}`}
 					label={tag}
-					options={[{ name: "", value: "" }, ...UD_TAGS]}
+					options={[{ label: "", value: "" }, ...UD_TAGS]}
 					defaultValue={
-						props.xlat &&
 						UD_TAGS.find(
 							(option) =>
-								option.value ===
-								(props.xlat[tag] ? props.xlat[tag].toUpperCase() : "")
+								option.value === (xlat[tag] ? xlat[tag].toUpperCase() : "")
 						)?.value
 					}
 				/>
 			))}
+
+			<EleButton
+				label="Load POS"
+				value="load-custom-tags"
+				onClick={(event) => handleLoadCustomTags(event)}
+			/>
 		</EleCollapsibleElement>
 	);
 };

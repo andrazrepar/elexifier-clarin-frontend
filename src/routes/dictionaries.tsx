@@ -61,6 +61,7 @@ export default function OrganisationDictionaries() {
 	const [file, setFile] = useState(null);
 
 	const handleFileChange = (e) => {
+		console.log(e);
 		setFile(e.target.files[0]);
 	};
 
@@ -71,10 +72,12 @@ export default function OrganisationDictionaries() {
 
 		const entry = e.target.elements.entry.value;
 		const headword = e.target.elements.headword.value;
-		const title = e.target.elements.title.value;
-		const acronym = e.target.elements.acronym.value;
-		const citation = e.target.elements.citation.value;
-		const publisher = e.target.elements.publisher.value;
+		//const title = e.target.elements.title.value;
+		//const acronym = e.target.elements.acronym.value;
+		//const citation = e.target.elements.citation.value;
+		//const publisher = e.target.elements.publisher.value;
+
+		console.log(entry, headword, file);
 
 		if (file) {
 			try {
@@ -99,6 +102,8 @@ export default function OrganisationDictionaries() {
 						createTaskBody
 					);
 					console.log(createTaskResponse);
+				} else {
+					console.log(uploadResponse);
 				}
 
 				// Log the name and file after a successful upload
@@ -113,7 +118,7 @@ export default function OrganisationDictionaries() {
 
 		// Close the modal regardless of whether the upload was successful
 		setModalIsOpen(false);
-		window.location.reload();
+		redirect(`/app/organisation/${organisationId}/dictionaries`);
 	};
 
 	return (

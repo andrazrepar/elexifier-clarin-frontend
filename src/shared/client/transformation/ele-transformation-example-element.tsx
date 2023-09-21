@@ -3,6 +3,7 @@ import { EleInputField } from "../ele-input-field";
 import { EleDropdownField } from "../ele-dropdown-field";
 import { attributeDefaultValues } from "../../dmlex-spec";
 import React, { useState } from "react";
+import { EleSearchableDropdownField } from "../ele-searchable-dropdown-field";
 
 export const EleTransformationExampleElement: React.FC<any> = ({
 	id,
@@ -12,7 +13,6 @@ export const EleTransformationExampleElement: React.FC<any> = ({
 	className = "text-sm font-medium text-indigo-600", // default class
 	...props
 }) => {
-	const [isAdvancedVisible, setAdvancedVisible] = useState(false);
 	return (
 		<EleCollapsibleElement
 			id={id}
@@ -21,30 +21,30 @@ export const EleTransformationExampleElement: React.FC<any> = ({
 			label={label}
 			className={className}
 		>
-			<EleInputField
+			<EleSearchableDropdownField
 				label="Path"
-				name={`${id}-inSelector`}
-				className="text-sm font-medium text-indigo-600"
+				name={`${id}-inSelector-simple`}
+				options={props.entryPaths}
 				existingValue={props.existingValues?.inSelector}
+				className={`flex items-center mt-2 mb-2 ${
+					props.isAdvancedVisible ? "hidden" : ""
+				}`}
 			/>
 
-			<EleCollapsibleElement
-				id={`${id}-advanced`}
-				isExpanded={isAdvancedVisible}
-				className="mb-4"
-				handleExpand={(event) => {
-					event.stopPropagation();
-					setAdvancedVisible(!isAdvancedVisible);
-				}}
-				label="Advanced"
-			>
+			<div className={`${!props.isAdvancedVisible ? "hidden" : ""}`}>
+				<EleInputField
+					label="Path"
+					name={`${id}-inSelector-advanced`}
+					className="text-sm font-medium text-indigo-600"
+					existingValue={props.existingValues?.inSelector}
+				/>
 				<EleDropdownField
 					label="attribute"
 					name={`${id}-attribute`}
 					className="flex-grow py-2 px-3 rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
 					options={attributeDefaultValues}
 					defaultValue={
-						attributeDefaultValues.find((item) => item.name === "innerText")
+						attributeDefaultValues.find((item) => item.label === "innerText")
 							?.value
 					}
 				/>
@@ -88,7 +88,7 @@ export const EleTransformationExampleElement: React.FC<any> = ({
 					className="flex-grow py-2 px-3 rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
 					options={attributeDefaultValues}
 					defaultValue={
-						attributeDefaultValues.find((item) => item.name === "innerText")
+						attributeDefaultValues.find((item) => item.label === "innerText")
 							?.value
 					}
 				/>
@@ -132,7 +132,7 @@ export const EleTransformationExampleElement: React.FC<any> = ({
 					className="flex-grow py-2 px-3 rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
 					options={attributeDefaultValues}
 					defaultValue={
-						attributeDefaultValues.find((item) => item.name === "innerText")
+						attributeDefaultValues.find((item) => item.label === "innerText")
 							?.value
 					}
 				/>
@@ -169,7 +169,7 @@ export const EleTransformationExampleElement: React.FC<any> = ({
 						)?.constant
 					}
 				/>
-			</EleCollapsibleElement>
+			</div>
 			{props.children}
 		</EleCollapsibleElement>
 	);

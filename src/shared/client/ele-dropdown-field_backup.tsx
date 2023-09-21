@@ -4,7 +4,7 @@ import { EleInputField } from "./ele-input-field";
 type SelectAttributes = React.SelectHTMLAttributes<HTMLSelectElement>;
 
 interface Option {
-	label: string;
+	name: string;
 	value: string;
 }
 
@@ -48,16 +48,15 @@ export function EleDropdownField({
 			{label && <label className="text-sm text-gray-600 mr-2">{label}:</label>}
 			<select
 				defaultValue={defaultValue}
-				key={label}
 				name={`${name}`}
 				onChange={handleChange}
 				onClick={(e) => e.stopPropagation()}
 				className="flex-grow py-2 px-3 rounded-md border-2 text-sm border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
 				{...props}
 			>
-				{options.map(({ label, value }) => (
-					<option key={value} value={value}>
-						{displayValue === "value" ? value : label}
+				{options.map(({ name, value }) => (
+					<option key={name} value={value}>
+						{displayValue === "value" ? value : name}
 					</option>
 				))}
 				{showCustom && <option value="custom">Custom...</option>}
