@@ -1,12 +1,12 @@
-import { EleCollapsibleElement } from "../ele-collapsible";
-import { EleInputField } from "../ele-input-field";
-import { EleDropdownField } from "../ele-dropdown-field";
-import { attributeDefaultValues } from "../../dmlex-spec";
-import JsonResult from "../ele-json-result";
+import { EleCollapsibleElement } from "../elements/ele-collapsible";
+import { EleInputField } from "../elements/ele-input-field";
+import { EleDropdownField } from "../elements/ele-dropdown-field";
+import { attributeDefaultValues } from "../dmlex-spec";
+import JsonResult from "../elements/ele-json-result";
 import React, { useState } from "react";
-import { EleSearchableDropdownField } from "../ele-searchable-dropdown-field";
+import { EleSearchableDropdownField } from "../elements/ele-searchable-dropdown-field";
 
-export const EleTransformationPartOfSpeechElement: React.FC<any> = ({
+export const EleTransformationLabelElement: React.FC<any> = ({
 	id,
 	handleExpand,
 	label,
@@ -49,7 +49,6 @@ export const EleTransformationPartOfSpeechElement: React.FC<any> = ({
 							?.value
 					}
 				/>
-
 				<EleInputField
 					label="Regex"
 					name={`${id}-regex`}
@@ -60,7 +59,6 @@ export const EleTransformationPartOfSpeechElement: React.FC<any> = ({
 						)?.regex
 					}
 				/>
-
 				<EleInputField
 					label="RegexGroup"
 					name={`${id}-regexGroup`}

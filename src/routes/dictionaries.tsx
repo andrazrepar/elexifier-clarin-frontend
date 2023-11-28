@@ -11,9 +11,9 @@ import {
 } from "react-router-dom";
 import { Suspense } from "react";
 import { getOrganisationDictionaries, Dictionary } from "../api/dictionaries";
-import EleButtonGroup from "../shared/client/ele-button-group";
+import EleButtonGroup from "../shared/elements/ele-button-group";
 import eleApiService from "../shared/ele-api-service";
-import NewDictionaryModal from "../shared/client/ele-new-dictionary-modal";
+import NewDictionaryModal from "../shared/elements/ele-new-dictionary-modal";
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";

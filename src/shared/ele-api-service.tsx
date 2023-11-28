@@ -462,6 +462,20 @@ class eleApiService {
 		return await this.makeRequest(`/task`, requestOptions);
 	}
 
+	async getTask(taskId: string): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const requestOptions: RequestOptions = {
+			method: "GET",
+			headers: myHeaders,
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(`/task/${taskId}`, requestOptions);
+	}
+
 	async getDmEntry(entryId: string): Promise<Response> {
 		const myHeaders = new Headers();
 		myHeaders.append("Authorization", this.token || "");
@@ -516,6 +530,40 @@ class eleApiService {
 
 		return await this.makeRequest(
 			`/file/${fileId}/pos?${params.toString()}`,
+			requestOptions
+		);
+	}
+
+	async getControlledValues(transformationId: string): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const requestOptions: RequestOptions = {
+			method: "GET",
+			headers: myHeaders,
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(
+			`/transformation/${transformationId}/controlled_values`,
+			requestOptions
+		);
+	}
+
+	async getFile(transformationId: string): Promise<Response> {
+		const myHeaders = new Headers();
+		myHeaders.append("Authorization", this.token || "");
+		myHeaders.append("Content-Type", "application/json");
+
+		const requestOptions: RequestOptions = {
+			method: "GET",
+			headers: myHeaders,
+			redirect: "follow",
+		};
+
+		return await this.makeRequest(
+			`/transformation/${transformationId}/download`,
 			requestOptions
 		);
 	}

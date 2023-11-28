@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 
-import { EleTransformationHeadwordElement } from "./transformation/ele-transformation-headword-element";
-import { EleTransformationHomographNumberElement } from "./transformation/ele-transformation-homograph-number-element";
-import { EleTransformationPartOfSpeechElement } from "./transformation/ele-transformation-part-of-speech-element";
-import { EleTransformationLabelElement } from "./transformation/ele-transformation-label-element";
-import { EleTransformationPronounciationElement } from "./transformation/ele-transformation-pronounciation-element";
-import { EleTransformationTranscriptionElement } from "./transformation/ele-transformation-transcription-element";
-import { EleTransformationInflectedFormElement } from "./transformation/ele-transformation-inflected-form-element";
-import { EleTransformationSenseElement } from "./transformation/ele-transformation-sense-element";
-import { EleTransformationDefinitionElement } from "./transformation/ele-transformation-definition-element";
-import { EleTransformationExampleElement } from "./transformation/ele-transformation-example-element";
-import { EleDictionaryMetaData } from "./ele-dictionary-metadata";
-import { ElePosMapping } from "../ele-pos";
+import { EleTransformationHeadwordElement } from "./ele-transformation-headword-element";
+import { EleTransformationHomographNumberElement } from "./ele-transformation-homograph-number-element";
+import { EleTransformationPartOfSpeechElement } from "./ele-transformation-part-of-speech-element";
+import { EleTransformationLabelElement } from "./ele-transformation-label-element";
+import { EleTransformationPronounciationElement } from "./ele-transformation-pronounciation-element";
+import { EleTransformationTranscriptionElement } from "./ele-transformation-transcription-element";
+import { EleTransformationInflectedFormElement } from "./ele-transformation-inflected-form-element";
+import { EleTransformationSenseElement } from "./ele-transformation-sense-element";
+import { EleTransformationDefinitionElement } from "./ele-transformation-definition-element";
+import { EleTransformationExampleElement } from "./ele-transformation-example-element";
+import { EleDictionaryMetaData } from "../elements/ele-dictionary-metadata";
+import { ElePosMapping } from "../elements/ele-pos";
 
 export function TransformTree3(props: any) {
 	// Assuming we have two separate states, one for parents and one for children.

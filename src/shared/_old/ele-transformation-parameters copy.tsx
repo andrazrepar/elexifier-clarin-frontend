@@ -1,14 +1,16 @@
 import { EleCollapsibleElement } from "./ele-collapsible";
-import { EleTransformationHeadwordElement } from "./transformation/ele-transformation-headword-element";
-import { EleTransformationHomographNumberElement } from "./transformation/ele-transformation-homograph-number-element";
-import { EleTransformationPartOfSpeechElement } from "./transformation/ele-transformation-part-of-speech-element";
-import { EleTransformationLabelElement } from "./transformation/ele-transformation-label-element";
-import { EleTransformationPronounciationElement } from "./transformation/ele-transformation-pronounciation-element";
-import { EleTransformationTranscriptionElement } from "./transformation/ele-transformation-transcription-element";
-import { EleTransformationInflectedFormElement } from "./transformation/ele-transformation-inflected-form-element";
-import { EleTransformationSenseElement } from "./transformation/ele-transformation-sense-element";
-import { EleTransformationDefinitionElement } from "./transformation/ele-transformation-definition-element";
-import { EleTransformationExampleElement } from "./transformation/ele-transformation-example-element";
+import { EleDefaultElementTransformation } from "./ele-transformation-headword-element";
+import { EleTransformationHomographNumberElement } from "./ele-transformation-homograph-number-element";
+import { EleTransformationPartOfSpeechElement } from "./ele-transformation-part-of-speech-element";
+import { EleTransformationLabelElement } from "./ele-transformation-label-element";
+import { EleTransformationPronounciationElement } from "./ele-transformation-pronounciation-element";
+import { EleTransformationTranscriptionElement } from "./ele-transformation-transcription-element";
+import { EleTransformationInflectedFormElement } from "./ele-transformation-inflected-form-element";
+import { EleTransformationSenseElement } from "./ele-transformation-sense-element";
+import { EleTransformationDefinitionElement } from "./ele-transformation-definition-element";
+import { EleTransformationExampleElement } from "./ele-transformation-example-element";
+import { findEMDs } from "./find-elements";
+import { EleTransformationDefaultElements } from "./ele-transformation-headword-element";
 
 import { useState } from "react";
 
@@ -49,6 +51,153 @@ export const EleTransformationParameters: React.FC<any> = ({
 			[id]: !prevState[id],
 		}));
 	};
+
+	const [headwords, setHeadwords] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [homographNumbers, setHomographNumbers] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "homographNumber"],
+			"textVals",
+			[]
+		)
+	);
+	const [partOfSpeeches, setPartOfSpeeches] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "partOfSpeech"],
+			"children",
+			[]
+		)
+	);
+	const [labels, setLabels] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [pronunciations, setPronunciations] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [pronunciationLabels, setPronunciationLabels] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [pronunciationTranscription, setPronunciationTranscription] = useState<
+		any[]
+	>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [inflectedForms, setInflectedForms] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [inflectedFormLabels, setInflectedFormLabels] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [inflectedFormPronunciations, setInflectedFormPronunciations] =
+		useState<any[]>(
+			findElements(
+				props.transformation,
+				["lexicographicResource", "entry", "headword"],
+				"textVals",
+				[]
+			)
+		);
+	const [
+		inflectedFormPronunciationLabels,
+		setInflectedFormPronunciationLabels,
+	] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [
+		inflectedFormPronunciationTranscriptions,
+		setInflectedFormPronunciationTranscriptions,
+	] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [senses, setSenses] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [senseLabels, setSenseLabels] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [senseDefinitions, setSenseDefinitions] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [senseExamples, setSenseExamples] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+	const [senseExampleLabels, setSenseExampleLabels] = useState<any[]>(
+		findElements(
+			props.transformation,
+			["lexicographicResource", "entry", "headword"],
+			"textVals",
+			[]
+		)
+	);
+
 	return (
 		<EleCollapsibleElement
 			id={id}
@@ -57,20 +206,43 @@ export const EleTransformationParameters: React.FC<any> = ({
 			label={label}
 			className={className}
 		>
-			<EleTransformationHeadwordElement
+			{/*<EleDefaultElementTransformation
 				id="entry-headword"
+				outElement="headword"
 				isSubElementExpanded={isParentExpanded}
 				handleExpand={toggleParentElement}
-				label="headword"
+				transformation={props.transformation}
+				setTransformation={props.setTransformation}
 				entry={props.entry}
 				entryPaths={props.entryPaths}
 				isAdvancedVisible={props.isAdvancedVisible}
-				existingValues={props.transformation.children
-					?.find((el: any) => el.outElement === "entry")
-					?.textVals.find((el: any) => el.outElement === "headword")}
+			/>*/}
+
+			<EleTransformationDefaultElements
+				id="entry-headword"
+				label="headword"
+				values={headwords}
+				setValues={setHeadwords}
+				isSubElementExpanded={isParentExpanded}
+				handleExpand={toggleParentElement}
+				entry={props.entry}
+				entryPaths={props.entryPaths}
+				isAdvancedVisible={props.isAdvancedVisible}
 			/>
 
-			<EleTransformationHomographNumberElement
+			<EleTransformationDefaultElements
+				id="entry-homographNumber"
+				label="homographNumber"
+				values={homographNumbers}
+				setValues={setHomographNumbers}
+				isSubElementExpanded={isParentExpanded}
+				handleExpand={toggleParentElement}
+				entry={props.entry}
+				entryPaths={props.entryPaths}
+				isAdvancedVisible={props.isAdvancedVisible}
+			/>
+
+			{/*<EleTransformationHomographNumberElement
 				id="entry-homographNumber"
 				isSubElementExpanded={isParentExpanded}
 				handleExpand={toggleParentElement}
@@ -81,7 +253,7 @@ export const EleTransformationParameters: React.FC<any> = ({
 				existingValues={props.transformation.children
 					?.find((el: any) => el.outElement === "entry")
 					?.textVals.find((el: any) => el.outElement === "homographNumber")}
-			/>
+			/>*/}
 
 			<EleTransformationPartOfSpeechElement
 				id="entry-partOfSpeech"

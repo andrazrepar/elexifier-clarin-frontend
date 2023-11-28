@@ -1,5 +1,5 @@
-import { EleInputField } from "../shared/client/ele-input-field";
-import { EleButton } from "../shared/client/ele-button";
+import { EleInputField } from "../shared/elements/ele-input-field";
+import { EleButton } from "../shared/elements/ele-button";
 import {
 	Form,
 	Link,
