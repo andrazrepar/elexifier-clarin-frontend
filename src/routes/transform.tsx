@@ -268,7 +268,11 @@ async function getFirstEntry(dictionaryId, firstEntryId) {
 	).json();
 }
 
-async function getTransformationId(dictionaryData, dictionaryId) {
+async function getTransformationId(
+	dictionaryData: any,
+	dictionaryLexicographicResource: string,
+	dictionaryId: Number
+) {
 	let transformationId = dictionaryData.default_transformation_id;
 	if (!transformationId) {
 		const newTransformationName = generateDefaultTransformationName(
@@ -277,7 +281,7 @@ async function getTransformationId(dictionaryData, dictionaryId) {
 		const newTransformationResponse = await eleApiService.createTransformation(
 			dictionaryData.entry,
 			dictionaryData.lemma,
-			dictionaryData.dictionary_metadata,
+			dictionaryLexicographicResource,
 			newTransformationName,
 			dictionaryId,
 			dictionaryData.dictionary_metadata.title,
@@ -591,6 +595,7 @@ export async function loader({ params }) {
 
 	const transformationId = await getTransformationId(
 		dictionaryData,
+		dictionaryLexicographicResource,
 		dictionaryId
 	);
 	const transformationData = await getTransformationData(transformationId);
@@ -601,6 +606,10 @@ export async function loader({ params }) {
 		taskInfo = await (
 			await eleApiService.getTask(transformationData.task_id)
 		).json();
+	} else {
+		taskInfo = {
+			status: "not_started",
+		};
 	}
 
 	console.log("taskInfo", taskInfo);
@@ -680,9 +689,13 @@ export function TransformDictionary() {
 	);
 
 	const [allowTransform, setAllowTransform] = useState(
-		taskInfo.status &&
-			(taskInfo.status === "completed" || taskInfo.status === "error")
+		taskInfo.status === "completed" ||
+			taskInfo.status === "error" ||
+			taskInfo.status === "not_started"
 	);
+	//const allowTransform = true;
+	console.log("allowTransform", allowTransform);
+	console.log("taskInfo", taskInfo);
 	const [allowDownload, setAllowDownload] = useState(
 		transformationData.exported_dictionary_path !== null &&
 			transformationData.exported_dictionary_path !== undefined
@@ -841,8 +854,8 @@ export function TransformDictionary() {
 						}
 						existingXlat={
 							transformationData.transformation.children[0]?.children
-								.find((el) => el.outElement === "partOfSpeech")
-								?.textVals.find((el) => el.outElement === "tag")?.xlat || {}
+								?.find((el) => el.outElement === "partOfSpeech")
+								?.textVals?.find((el) => el.outElement === "tag")?.xlat || {}
 						}
 						transformationStatus={transformationStatus}
 						setTransformationStatus={setTransformationStatus}

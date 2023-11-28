@@ -137,7 +137,7 @@ export const EleControlledValues: React.FC<any> = ({
 										id={`${id}-inflectedFormTags-${index}-forHeadwords`}
 										label="forHeadwords"
 										isChecked={
-											!!controlledValues.inflectedFormTags[index].forHeadwords
+											!!controlledValues.inflectedFormTags[index]?.forHeadwords
 										}
 										onChange={props.handleCheckboxChange}
 									/>
@@ -146,7 +146,7 @@ export const EleControlledValues: React.FC<any> = ({
 										id={`${id}-inflectedFormTags-${index}-forTranslations`}
 										label="forTranslations"
 										isChecked={
-											!!controlledValues.inflectedFormTags[index].forHeadwords
+											!!controlledValues.inflectedFormTags[index]?.forHeadwords
 										}
 										onChange={props.handleCheckboxChange}
 									/>
@@ -188,7 +188,7 @@ export const EleControlledValues: React.FC<any> = ({
 										name={`${id}-inflectedFormTags-${index}-description`}
 										className="text-sm font-medium text-indigo-600"
 										existingValue={
-											controlledValues.inflectedFormTags[index].description
+											controlledValues.inflectedFormTags[index]?.description
 										}
 									/>
 
@@ -197,7 +197,7 @@ export const EleControlledValues: React.FC<any> = ({
 										name={`${id}-inflectedFormTags-${index}-sameAs`}
 										className="text-sm font-medium text-indigo-600"
 										existingValue={
-											controlledValues.inflectedFormTags[index].sameAs
+											controlledValues.inflectedFormTags[index]?.sameAs
 										}
 									/>
 									<input
@@ -232,7 +232,9 @@ export const EleControlledValues: React.FC<any> = ({
 									<EleCheckbox
 										id={`${id}-labelTags-${index}-forHeadwords`}
 										label="forHeadwords"
-										isChecked={!!controlledValues.labelTags[index].forHeadwords}
+										isChecked={
+											!!controlledValues.labelTags[index]?.forHeadwords
+										}
 										onChange={handleCheckboxChange}
 									/>
 
@@ -240,7 +242,7 @@ export const EleControlledValues: React.FC<any> = ({
 										id={`${id}-labelTags-${index}-forTranslations`}
 										label="forTranslations"
 										isChecked={
-											!!controlledValues.labelTags[index].forTranslations
+											!!controlledValues.labelTags[index]?.forTranslations
 										}
 										onChange={props.handleCheckboxChange}
 									/>
@@ -248,7 +250,7 @@ export const EleControlledValues: React.FC<any> = ({
 										id={`${id}-labelTags-${index}-forCollocates`}
 										label="forCollocates"
 										isChecked={
-											!!controlledValues.labelTags[index].forCollocates
+											!!controlledValues.labelTags[index]?.forCollocates
 										}
 										onChange={props.handleCheckboxChange}
 									/>
@@ -290,14 +292,14 @@ export const EleControlledValues: React.FC<any> = ({
 									label="Description"
 									name={`${id}-labelTags-${index}-description`}
 									className="text-sm font-medium text-indigo-600"
-									existingValue={controlledValues.labelTags[index].description}
+									existingValue={controlledValues.labelTags[index]?.description}
 								/>
 
 								<EleInputField
 									label="SameAs"
 									name={`${id}-labelTags-${index}-sameAs`}
 									className="text-sm font-medium text-indigo-600"
-									existingValue={controlledValues.labelTags[index].sameAs}
+									existingValue={controlledValues.labelTags[index]?.sameAs}
 								/>
 								<input
 									type="hidden"
@@ -330,7 +332,7 @@ export const EleControlledValues: React.FC<any> = ({
 								name={`${id}-labelTypeTags-${index}-description`}
 								className="text-sm font-medium text-indigo-600"
 								existingValue={
-									controlledValues.labelTypeTags[index].description
+									controlledValues.labelTypeTags[index]?.description
 								}
 							/>
 
@@ -338,7 +340,7 @@ export const EleControlledValues: React.FC<any> = ({
 								label="SameAs"
 								name={`${id}-labelTypeTags-${index}-sameAs`}
 								className="text-sm font-medium text-indigo-600"
-								existingValue={controlledValues.labelTypeTags[index].sameAs}
+								existingValue={controlledValues.labelTypeTags[index]?.sameAs}
 							/>
 							<input
 								type="hidden"
@@ -371,7 +373,7 @@ export const EleControlledValues: React.FC<any> = ({
 										id={`${id}-partOfSpeechTags-${index}-forHeadwords`}
 										label="forHeadwords"
 										isChecked={
-											!!controlledValues.partOfSpeechTags[index].forHeadwords
+											!!controlledValues.partOfSpeechTags[index]?.forHeadwords
 										}
 										onChange={props.handleCheckboxChange}
 									/>
@@ -380,7 +382,8 @@ export const EleControlledValues: React.FC<any> = ({
 										id={`${id}-partOfSpeechTags-${index}-forTranslations`}
 										label="forTranslations"
 										isChecked={
-											!!controlledValues.partOfSpeechTags[index].forTranslations
+											!!controlledValues.partOfSpeechTags[index]
+												?.forTranslations
 										}
 										onChange={props.handleCheckboxChange}
 									/>
@@ -388,7 +391,7 @@ export const EleControlledValues: React.FC<any> = ({
 										partOfSpeechTag
 										label="forEtymology"
 										isChecked={
-											!!controlledValues.partOfSpeechTags[index].forEtymology
+											!!controlledValues.partOfSpeechTags[index]?.forEtymology
 										}
 										onChange={props.handleCheckboxChange}
 									/>
@@ -418,7 +421,7 @@ export const EleControlledValues: React.FC<any> = ({
 										name={`${id}-partOfSpeechTags-${index}-description`}
 										className="text-sm font-medium text-indigo-600"
 										existingValue={
-											controlledValues.partOfSpeechTags[index].description
+											controlledValues.partOfSpeechTags[index]?.description
 										}
 									/>
 
@@ -427,7 +430,7 @@ export const EleControlledValues: React.FC<any> = ({
 										name={`${id}-partOfSpeechTags-${index}-sameAs`}
 										className="text-sm font-medium text-indigo-600"
 										existingValue={
-											controlledValues.partOfSpeechTags[index].sameAs
+											controlledValues.partOfSpeechTags[index]?.sameAs
 										}
 									/>
 									<input
@@ -465,7 +468,7 @@ export const EleControlledValues: React.FC<any> = ({
 									name={`${id}-sourceIdentityTags-${index}-description`}
 									className="text-sm font-medium text-indigo-600"
 									existingValue={
-										controlledValues.sourceIdentityTags[index].description
+										controlledValues.sourceIdentityTags[index]?.description
 									}
 								/>
 
@@ -474,7 +477,7 @@ export const EleControlledValues: React.FC<any> = ({
 									name={`${id}-sourceIdentityTags-${index}-sameAs`}
 									className="text-sm font-medium text-indigo-600"
 									existingValue={
-										controlledValues.sourceIdentityTags[index].sameAs
+										controlledValues.sourceIdentityTags[index]?.sameAs
 									}
 								/>
 
@@ -557,7 +560,7 @@ export const EleControlledValues: React.FC<any> = ({
 										name={`${id}-transcriptionSchemeTags-${index}-sameAs`}
 										className="text-sm font-medium text-indigo-600"
 										existingValue={
-											controlledValues.transcriptionSchemeTags[index].sameAs
+											controlledValues.transcriptionSchemeTags[index]?.sameAs
 										}
 									/>
 									<input
