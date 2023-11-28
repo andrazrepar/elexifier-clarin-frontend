@@ -1,12 +1,12 @@
-import { EleCollapsibleElement } from "../ele-collapsible";
-import { EleInputField } from "../ele-input-field";
-import { EleDropdownField } from "../ele-dropdown-field";
-import { attributeDefaultValues } from "../../dmlex-spec";
-import JsonResult from "../ele-json-result";
+import { EleCollapsibleElement } from "../elements/ele-collapsible";
+import { EleInputField } from "../elements/ele-input-field";
+import { EleDropdownField } from "../elements/ele-dropdown-field";
+import { attributeDefaultValues } from "../dmlex-spec";
+import JsonResult from "../elements/ele-json-result";
 import React, { useState } from "react";
-import { EleSearchableDropdownField } from "../ele-searchable-dropdown-field";
+import { EleSearchableDropdownField } from "../elements/ele-searchable-dropdown-field";
 
-export const EleTransformationSenseElement: React.FC<any> = ({
+export const EleTransformationHeadwordElement: React.FC<any> = ({
 	id,
 	handleExpand,
 	label,
@@ -39,21 +39,9 @@ export const EleTransformationSenseElement: React.FC<any> = ({
 					className="text-sm font-medium text-indigo-600"
 					existingValue={props.existingValues?.inSelector}
 				/>
-
-				<EleInputField
-					label="Indicator Path" // TODO come up with something better
-					name={`${id}-indicator-inSelector`}
-					className="text-sm font-medium text-indigo-600"
-					existingValue={
-						props.existingValues?.textVals?.find(
-							(el: any) => el.outElement === "indicator"
-						)?.inSelector
-					}
-				/>
-
 				<EleDropdownField
 					label="Attribute"
-					name={`${id}-indicator-attribute`}
+					name={`${id}-attribute`}
 					className="flex-grow py-2 px-3 rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
 					options={attributeDefaultValues}
 					defaultValue={
@@ -64,27 +52,18 @@ export const EleTransformationSenseElement: React.FC<any> = ({
 
 				<EleInputField
 					label="Regex"
-					name={`${id}-indicator-regex`}
+					name={`${id}-regex`}
 					className="text-sm font-medium text-indigo-600"
-					existingValue={
-						props.existingValues?.textVals?.find(
-							(el: any) => el.outElement === "indicator"
-						)?.regex
-					}
+					existingValue={props.existingValues?.regex}
 				/>
 
 				<EleInputField
 					label="RegexGroup"
-					name={`${id}-indicator-regexGroup`}
+					name={`${id}-regexGroup`}
 					className="text-sm font-medium text-indigo-600"
-					existingValue={
-						props.existingValues?.textVals?.find(
-							(el: any) => el.outElement === "indicator"
-						)?.regexGroup
-					}
+					existingValue={props.existingValues?.regexGroup}
 				/>
 			</div>
-			{props.children}
 		</EleCollapsibleElement>
 	);
 };

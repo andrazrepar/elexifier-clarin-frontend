@@ -23,25 +23,10 @@ export function EleDropdownField({
 	name,
 	options,
 	defaultValue,
-	displayValue = "key",
-	showCustom = true,
-	onChange,
-	...props
 }: EleDropdownFieldProps) {
-	const [customValue, setCustomValue] = useState("");
-	const [isCustom, setIsCustom] = useState(false);
-	const [isConstant, setIsConstant] = useState(false);
-	const [constantValue, setConstantValue] = useState("");
-
 	const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setIsCustom(event.target.value === "custom");
-		setIsConstant(event.target.value === options.constant);
-		if (onChange) {
-			onChange(event);
-		}
+		console.log("event", name, event.target.value);
 	};
-
-	//console.log("def", defaultValue);
 
 	return (
 		<div className="flex items-center mt-2 mb-2">
@@ -53,31 +38,13 @@ export function EleDropdownField({
 				onChange={handleChange}
 				onClick={(e) => e.stopPropagation()}
 				className="flex-grow py-2 px-3 rounded-md border-2 text-sm border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
-				{...props}
 			>
 				{options.map(({ label, value }) => (
 					<option key={value} value={value}>
-						{displayValue === "value" ? value : label}
+						{value}
 					</option>
 				))}
-				{showCustom && <option value="custom">Custom...</option>}
 			</select>
-			{isCustom && (
-				<EleInputField
-					value={customValue}
-					name={`${name}-custom`}
-					handleChange={(e) => setCustomValue(e.target.value)}
-					className="ml-2"
-				/>
-			)}
-			{isConstant && (
-				<EleInputField
-					value={constantValue}
-					name={`${name}-constant`}
-					handleChange={(e) => setConstantValue(e.target.value)}
-					className="ml-2"
-				/>
-			)}
 		</div>
 	);
 }

@@ -20,7 +20,8 @@ function classNames(...classes: (string | undefined)[]) {
 	return classes.filter(Boolean).join(" ");
 }
 
-const EleButtonGroup: React.FC<EleButtonGroupProps> = ({ items }) => {
+const EleButtonGroup: React.FC<EleButtonGroupProps> = ({ items, taskInfo }) => {
+	console.log(taskInfo);
 	return (
 		<div className="inline-flex rounded-md shadow-sm">
 			{items[0].type == "link" && (
@@ -83,9 +84,13 @@ const EleButtonGroup: React.FC<EleButtonGroupProps> = ({ items }) => {
 														active
 															? "bg-gray-100 text-gray-900"
 															: "text-gray-700",
-														"flex justify-end items-center w-full px-4 py-2 text-sm hover:bg-gray-200"
+														"flex justify-end items-center w-full px-4 py-2 text-sm hover:bg-gray-200",
+														item.edit === false
+															? "opacity-50 cursor-not-allowed"
+															: ""
 													)}
 													value={item.value}
+													disabled={item.edit === false}
 												/>
 												<input
 													type="hidden"

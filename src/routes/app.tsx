@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs } from "react-router-dom";
 import { redirect } from "react-router-dom";
-import { EleSidebarDesktop } from "../shared/client/ele-sidebar";
-import { EleNavbar } from "../shared/client/ele-navbar";
+import { EleSidebarDesktop } from "../shared/elements/ele-sidebar";
+import { EleNavbar } from "../shared/elements/ele-navbar";
 import eleApiService from "../shared/ele-api-service";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { TransformTree } from "../shared/client/ele-transform-tree";
+import React, { useState, useEffect, useRef } from "react";
+import { TransformTree } from "../shared/_old/ele-transform-tree";
 import { createDmlexSpec, attributeDefaultValues } from "../shared/dmlex-spec";
 import {
 	Form,
@@ -7,34 +7,83 @@ import {
 	useLoaderData,
 	useLocation,
 	useFetcher,
+	useActionData,
 } from "react-router-dom";
-import beautify from "xml-beautifier";
+
 import { useParams } from "react-router-dom";
 import eleApiService from "../shared/ele-api-service";
-import { TransformTree3 } from "../shared/client/ele-transform-tree3";
-import EleTabs from "../shared/client/ele-tabs";
-import EleButtonGroup from "../shared/client/ele-button-group";
-import { EleDropdownField } from "../shared/client/ele-dropdown-field";
-import { EleSearchableDropdownField } from "../shared/client/ele-searchable-dropdown-field";
-import EleToggle from "../shared/client/ele-toggle";
+import { TransformTree3 } from "../shared/elements/ele-transform-tree3";
+import EleTabs from "../shared/elements/ele-tabs";
+import EleButtonGroup from "../shared/elements/ele-button-group";
+import { EleDropdownField } from "../shared/elements/ele-dropdown-field";
+import { EleSearchableDropdownField } from "../shared/elements/ele-searchable-dropdown-field";
+import EleToggle from "../shared/elements/ele-toggle";
+import { generateNewTransformation } from "../shared/transformation/transformation-methods";
 
-async function applyTransformationToEntry(
-	transformationId: Number,
-	entryId: Number
-) {
-	const transformationResponse = await eleApiService.applyTransformation(
-		transformationId,
-		entryId
-	);
-	const transformedEntry = await transformationResponse.json();
+function generateDefaultTransformationName(dictName: string) {
+	const now = new Date();
+	const formattedDate =
+		"" +
+		now.getFullYear() +
+		(now.getMonth() + 1).toString().padStart(2, "0") +
+		now.getDate().toString().padStart(2, "0") +
+		now.getHours().toString().padStart(2, "0") +
+		now.getMinutes().toString().padStart(2, "0") +
+		now.getSeconds().toString().padStart(2, "0");
 
-	if (transformationResponse.status === 404) {
-		throw new Error(`Transformation failed: ${transformedEntry.error}`);
+	return formattedDate + "_" + dictName;
+}
+
+function getOutElementPaths(obj, path = "", index = 0) {
+	let result = {};
+
+	for (let key in obj) {
+		let outElement = obj["outElement"];
+		let newPath =
+			path === ""
+				? `${outElement}${index}`
+				: key === "textVals" || key === "children"
+				? `${path}-${outElement}${index}`
+				: `${path}-${outElement}${index}-${key}`;
+
+		if (key !== "outElement" && key !== "children" && key !== "textVals") {
+			result[newPath] = obj[key];
+		}
+
+		if (key === "children") {
+			let groups = {};
+			for (let child of obj[key]) {
+				// Group children by their outElement
+				let childOutElement = child["outElement"];
+				if (!groups[childOutElement]) {
+					groups[childOutElement] = [];
+				}
+				groups[childOutElement].push(child);
+			}
+
+			// Process each group separately
+			for (let group in groups) {
+				let groupChildren = groups[group];
+				groupChildren.forEach((child, index) => {
+					result = {
+						...result,
+						...getOutElementPaths(child, newPath, index),
+					};
+				});
+			}
+		} else if (key === "textVals") {
+			for (let child of obj[key]) {
+				let childOutElement = child["outElement"];
+				let childPath = `${newPath}-${childOutElement}`;
+				for (let childKey in child) {
+					if (childKey !== "outElement") {
+						result[`${childPath}-${childKey}`] = child[childKey];
+					}
+				}
+			}
+		}
 	}
-
-	const transformedEntryData = transformedEntry.data[0].entrys[0];
-
-	return transformedEntryData;
+	return result;
 }
 
 function removeNullInSelector(obj: any) {
@@ -114,11 +163,15 @@ function setSimpleOrAdvanced(
 function createXlatAndFieldsToUpdate(formData: FormData): {
 	xlat: { [key: string]: any };
 	fieldsToUpdate: { [key: string]: any };
+	controlledValues: { [key: string]: any };
 } {
 	let fieldsToUpdate: { [key: string]: any } = Object.fromEntries(formData);
 
 	// create xlat mapping and remove from fieldsToUpdate
 	let xlat: { [key: string]: any } = {};
+
+	let controlledValues: { [key: string]: any } = {};
+
 	Object.keys(fieldsToUpdate).forEach((key) => {
 		if (key.startsWith("ud-mapping")) {
 			// Remove 'ud-mapping-' from the key and add the key-value pair to xlat
@@ -131,30 +184,142 @@ function createXlatAndFieldsToUpdate(formData: FormData): {
 
 			// Remove the key-value pair from fieldsToUpdate
 			delete fieldsToUpdate[key];
+		} else if (key.startsWith("controlled-values")) {
+			// Remove 'controlled-values-' from the key
+			let newKey = key.replace("controlled-values-", "");
+			let [type, index, field, subField] = newKey.split("-");
+			if (fieldsToUpdate[key] !== "") {
+				if (!controlledValues[type]) {
+					controlledValues[type] = {};
+				}
+				if (!controlledValues[type][index]) {
+					controlledValues[type][index] = {};
+				}
+
+				let value = fieldsToUpdate[key];
+				if (
+					["forHeadwords", "forTranslations", "forCollocates"].includes(
+						field
+					) &&
+					value === "on"
+				) {
+					value = "true";
+				}
+				controlledValues[type][index][field] = value;
+			}
+			delete fieldsToUpdate[key];
 		}
 	});
 
-	return { xlat, fieldsToUpdate };
+	// Convert arrays of objects to arrays
+	Object.keys(controlledValues).forEach((key) => {
+		controlledValues[key] = Object.values(controlledValues[key]);
+	});
+
+	return { xlat, fieldsToUpdate, controlledValues };
 }
 
-function generateDefaultTransformationName(dictName: string) {
-	const now = new Date();
-	const formattedDate =
-		"" +
-		now.getFullYear() +
-		(now.getMonth() + 1).toString().padStart(2, "0") +
-		now.getDate().toString().padStart(2, "0") +
-		now.getHours().toString().padStart(2, "0") +
-		now.getMinutes().toString().padStart(2, "0") +
-		now.getSeconds().toString().padStart(2, "0");
+async function applyTransformationToEntry(
+	transformationId: Number,
+	entryId: Number
+) {
+	const transformationResponse = await eleApiService.applyTransformation(
+		transformationId,
+		entryId
+	);
+	const transformedEntry = await transformationResponse.json();
 
-	return formattedDate + "_" + dictName;
+	if (transformationResponse.status === 404) {
+		throw new Error(`Transformation failed: ${transformedEntry.error}`);
+	}
+
+	const transformedEntryDataJson = transformedEntry.json[0].entrys[0];
+	const transformedEntryDataXml = transformedEntry.xml;
+	const transformedEntryDataRdf = transformedEntry.rdf;
+
+	return {
+		transformedEntryDataJson,
+		transformedEntryDataXml,
+		transformedEntryDataRdf,
+	};
+}
+
+async function getDictionaryData(dictionaryId) {
+	const dictionaryResponse = await eleApiService.getDictionary(dictionaryId);
+	if (dictionaryResponse.status === 404) {
+		throw new Error("Dictionary not found");
+	}
+	return await dictionaryResponse.json();
+}
+
+async function getEntries(dictionaryId, limit) {
+	const entries = await (
+		await eleApiService.listEntries(dictionaryId, limit)
+	).json();
+	if (entries.length === 0) {
+		throw new Error("No entries found");
+	}
+	return entries;
+}
+
+async function getFirstEntry(dictionaryId, firstEntryId) {
+	return await (
+		await eleApiService.getEntry(dictionaryId, firstEntryId)
+	).json();
+}
+
+async function getTransformationId(dictionaryData, dictionaryId) {
+	let transformationId = dictionaryData.default_transformation_id;
+	if (!transformationId) {
+		const newTransformationName = generateDefaultTransformationName(
+			dictionaryData.name
+		);
+		const newTransformationResponse = await eleApiService.createTransformation(
+			dictionaryData.entry,
+			dictionaryData.lemma,
+			dictionaryData.dictionary_metadata,
+			newTransformationName,
+			dictionaryId,
+			dictionaryData.dictionary_metadata.title,
+			dictionaryData.dictionary_metadata.uri,
+			dictionaryData.dictionary_metadata.language
+		);
+
+		if (newTransformationResponse.status === 400) {
+			throw new Error("Transformation is not valid");
+		}
+
+		const newTransformation = await newTransformationResponse.json();
+		transformationId = newTransformation.transformation_id;
+	}
+	return transformationId;
+}
+
+async function getTransformationData(transformationId) {
+	return await (await eleApiService.getTransformation(transformationId)).json();
+}
+
+async function getPaths(dictionaryId, firstEntryId) {
+	const pathsResponse = await eleApiService.getEntryPaths(
+		dictionaryId,
+		firstEntryId
+	);
+	return await pathsResponse.json();
+}
+
+function parseXmlAndGetRoot(xmlString: string): string {
+	let parser = new DOMParser();
+	let xmlDoc = parser.parseFromString(xmlString, "text/xml");
+	let root = xmlDoc.documentElement;
+	return `${root.nodeName}`;
 }
 
 type TransformLoaderData = {
 	entries: object[];
 	firstEntry: object;
-	transformedFirstEntryData: object;
+	transformedEntryDataJson: object;
+	transformedEntryDataXml: string;
+	transformedEntryDataRdf: string;
 	dictionaryEntry: string;
 	dictionaryLemma: string;
 	dictionaryLexicographicResource: string;
@@ -163,11 +328,95 @@ type TransformLoaderData = {
 	transformationId: Number;
 	transformationData: object;
 	paths: object;
+	taskInfo: object;
 };
+
+function generatePathOptions(paths) {
+	let options = [];
+	paths.paths.forEach((path: string) => {
+		options.push({ label: path, value: `.//${path}` });
+	});
+	return options;
+}
+
+function generateEntryOptions(entries) {
+	let options = [];
+	entries.entries.forEach((entry) => {
+		options.push({ label: entry.lemma, value: entry.id });
+	});
+	return options;
+}
+
+async function fetchEntryData(dictionaryId, selectedEntryId, transformationId) {
+	const { transformedEntryDataJson, transformedEntryDataXml } =
+		await applyTransformationToEntry(transformationId, selectedEntryId);
+	const entryResponse = await eleApiService.getEntry(
+		dictionaryId,
+		selectedEntryId
+	);
+	const entry = await entryResponse.json();
+	return {
+		originalXml: entry.text,
+		transformedJson: transformedEntryDataJson,
+		transformedXml: transformedEntryDataXml,
+	};
+}
+
+async function updateDictionaryMetadata(
+	dictionaryId: string,
+	entrySelector: string,
+	lemmaSelector: string,
+	dictionaryTitle: string,
+	dictionaryUri: string,
+	dictionaryLanguage: string
+) {
+	const dictionaryMetadata = {
+		title: dictionaryTitle,
+		uri: dictionaryUri,
+		language: dictionaryLanguage,
+	};
+
+	const updateDictionaryResponse = await eleApiService.updateDictionary(
+		dictionaryId,
+		entrySelector,
+		lemmaSelector,
+		dictionaryMetadata
+	);
+
+	if (updateDictionaryResponse.status === 404) {
+		throw new Error(`Dictionary not found: ${updateDictionaryResponse.error}`);
+	}
+}
+
+async function updateTransformation(
+	transformationId: number,
+	entrySelector: string,
+	lemmaSelector: string,
+	transformationName: string,
+	updatedTransformation: any,
+	advancedMode: boolean
+) {
+	const transformationResponse = await eleApiService.getTransformation(
+		transformationId
+	);
+	const transformation = await transformationResponse.json();
+
+	if (transformationResponse.status === 404) {
+		throw new Error(`Transformation not found: ${transformation.error}`);
+	}
+
+	await eleApiService.updateTransformation(
+		transformationId,
+		entrySelector,
+		lemmaSelector,
+		transformationName,
+		updatedTransformation,
+		advancedMode
+	);
+}
 
 export async function action({ request, params }) {
 	let formData = await request.formData();
-
 	let namespaces = null; // or some array of namespaces
 	let dictSelector = formData.get("dictionary-lexicographic-resource");
 	let entrySelector = formData.get("dictionary-entry");
@@ -181,77 +430,53 @@ export async function action({ request, params }) {
 	const dictionaryUri = formData.get("dictionary-uri");
 	const dictionaryLanguage = formData.get("dictionary-language");
 	const advancedMode = JSON.parse(formData.get("advanced-mode"));
-
-	console.log("intent", formData.get("intent"));
-
-	console.log("lemma", typeof advancedMode);
-
 	const intent = formData.get("intent");
+	const exportedDictionaryPath = formData.get("exported_dictionary_path");
+
+	console.log("INTENT", intent);
+	// log the formData
+	//for (let [key, value] of formData.entries()) {
+	//	console.log(key, value);
+	//}
 
 	switch (intent) {
 		case "update":
 			// update dictionary metadata
-			const dictionaryMetadata = {
-				title: dictionaryTitle,
-				uri: dictionaryUri,
-				language: dictionaryLanguage,
-			};
-
-			const updateDictionaryResponse = await eleApiService.updateDictionary(
+			await updateDictionaryMetadata(
 				dictionaryId,
 				entrySelector,
 				lemmaSelector,
-				dictionaryMetadata
+				dictionaryTitle,
+				dictionaryUri,
+				dictionaryLanguage
 			);
 
-			if (updateDictionaryResponse.status === 404) {
-				throw new Error(
-					`Dictionary not found: ${updateDictionaryResponse.error}`
-				);
-			}
-
-			// update transformation
-			const { xlat, fieldsToUpdate } = createXlatAndFieldsToUpdate(formData);
-			console.log("xlat2", xlat);
-
-			// set simple or advanced
-			formData = setSimpleOrAdvanced(formData, advancedMode);
-
-			// Call createDmlexSpec
-			let result = createDmlexSpec({
+			// generate new transformation
+			const { xlat, fieldsToUpdate, controlledValues } =
+				createXlatAndFieldsToUpdate(formData);
+			console.log("fieldsToUpdate", fieldsToUpdate);
+			console.log("xlat", xlat);
+			let updatedTransformation = generateNewTransformation(
 				fieldsToUpdate,
-				formData,
-				namespaces,
-				dictSelector,
 				entrySelector,
+				dictSelector,
 				dictionaryTitle,
 				dictionaryUri,
 				dictionaryLanguage,
 				xlat,
-			});
-
-			// Remove null values from the selector
-			const newResult = removeNullInSelector(result);
-
-			const transformationResponse = await eleApiService.getTransformation(
-				transformationId
+				controlledValues
 			);
-			const transformation = await transformationResponse.json();
+			console.log("newTransformation", updatedTransformation);
 
-			if (transformationResponse.status === 404) {
-				throw new Error(`Transformation not found: ${transformation.error}`);
-			}
-
-			const updatedTranformationResponse =
-				await eleApiService.updateTransformation(
-					transformationId,
-					entrySelector,
-					lemmaSelector,
-					transformationName,
-					newResult,
-					advancedMode
-				);
-			const updatedTransformation = await updatedTranformationResponse.json();
+			// update transformation in the database
+			await updateTransformation(
+				transformationId,
+				entrySelector,
+				lemmaSelector,
+				transformationName,
+				updatedTransformation,
+				advancedMode
+			);
 
 			//return window.location.reload();
 
@@ -263,8 +488,6 @@ export async function action({ request, params }) {
 		//);
 
 		case "reset":
-			console.log("Resetting transformation ...");
-
 			const newTransformationResponse = await eleApiService.resetTransformation(
 				transformationId,
 				entrySelector,
@@ -286,16 +509,64 @@ export async function action({ request, params }) {
 			return window.location.reload();
 
 		case "import":
-			console.log("Importing into dmlex ...");
-			const createTaskBody = {
+			const importTaskBody = {
 				type: "export",
 				input: {
 					file_id: dictionaryId,
 					transformation_id: transformationId,
 				},
 			};
-			const createTaskResponse = await eleApiService.createTask(createTaskBody);
-			console.log(createTaskResponse);
+			const importTaskResponse = await eleApiService.createTask(importTaskBody);
+			console.log(importTaskResponse);
+
+		case "transform":
+			const downloadTaskBody = {
+				type: "download",
+				input: {
+					file_id: dictionaryId,
+					transformation_id: transformationId,
+				},
+			};
+			const downloadTaskResponse = await eleApiService.createTask(
+				downloadTaskBody
+			);
+			console.log(downloadTaskResponse);
+			return redirect("/app/tasks");
+
+		case "reload_controlled_values":
+			console.log("RELOAD CONTROLLED VALUES");
+
+			const controlledValuesResponse = await eleApiService.getControlledValues(
+				transformationId
+			);
+			const response = await controlledValuesResponse.json();
+			switch (controlledValuesResponse.status) {
+				case 200:
+					// reload the page
+					console.log("RESPONSE", response);
+					return {
+						success: true,
+					};
+
+				default:
+					// Handle other status codes
+					console.log(
+						"Unexpected status code",
+						controlledValuesResponse.status
+					);
+			}
+
+		case "get_file":
+			console.log("GET FILE");
+			const downloadResponse = await eleApiService.getFile(transformationId);
+			const downloadData = await downloadResponse.blob();
+			console.log("downloadData", downloadData);
+			return {
+				body: downloadData,
+				headers: {
+					"Content-Disposition": `attachment; filename="exports.zip"`,
+				},
+			};
 
 		default:
 			return {
@@ -306,111 +577,57 @@ export async function action({ request, params }) {
 }
 
 export async function loader({ params }) {
-	// get dictionary entries
-	//const entries = await getEntries(params.dictionaryId);
-
 	console.log("LOADER");
-
 	const { organisationId, dictionaryId } = params;
-
 	const limit = 10;
 
-	const dictionaryResponse = await eleApiService.getDictionary(dictionaryId);
-
-	if (dictionaryResponse.status === 404) {
-		throw new Error("Dictionary not found");
-	}
-
-	const dictionary = await dictionaryResponse.json();
-
-	console.log(dictionary);
-	const dictionaryName = dictionary.name;
-	const dictionaryEntry = dictionary.entry;
-	const dictionaryLemma = dictionary.lemma;
-	const dictionaryMetadata = dictionary.dictionary_metadata;
-
-	const entriesResponse = await eleApiService.listEntries(dictionaryId, limit);
-	const entries = await entriesResponse.json();
-
-	if (entries.length === 0) {
-		throw new Error("No entries found");
-	}
-
+	const dictionaryData = await getDictionaryData(dictionaryId);
+	const entries = await getEntries(dictionaryId, limit);
 	const firstEntryId = entries.entries[0].id;
-
-	const firstEntryResponse = await eleApiService.getEntry(
-		dictionaryId,
-		firstEntryId
-	);
-
-	const firstEntry = await firstEntryResponse.json();
+	const firstEntry = await getFirstEntry(dictionaryId, firstEntryId);
 
 	// parse xml and get root - TODO: implement this in the backend as a field in the database (field exists, let's wait for some feedback)
-	let parser = new DOMParser();
-	let xmlDoc = parser.parseFromString(firstEntry.text, "text/xml");
-	let root = xmlDoc.documentElement;
-	const dictionaryLexicographicResource = `${root.nodeName}`;
+	const dictionaryLexicographicResource = parseXmlAndGetRoot(firstEntry.text);
 
-	// get transformation id, if no transformation exists, create one, otherwise load from the database
-	let transformationId;
+	const transformationId = await getTransformationId(
+		dictionaryData,
+		dictionaryId
+	);
+	const transformationData = await getTransformationData(transformationId);
 
-	if (!dictionary.default_transformation_id) {
-		console.log("No default transformation found");
-		const newTransformationName = generateDefaultTransformationName(
-			dictionary.name
-		);
-		const newTransformationResponse = await eleApiService.createTransformation(
-			dictionaryEntry,
-			dictionaryLemma,
-			dictionaryLexicographicResource,
-			newTransformationName,
-			dictionaryId,
-			dictionaryMetadata.title,
-			dictionaryMetadata.uri,
-			dictionaryMetadata.language
-		);
-		if (newTransformationResponse.status === 400) {
-			throw new Error("Transformation is not valid");
-		}
-
-		const newTransformation = await newTransformationResponse.json();
-
-		transformationId = newTransformation.transformation_id;
-	} else {
-		console.log("Default transformation found");
-		transformationId = dictionary.default_transformation_id;
+	// if task_id is present, check the status of the task
+	let taskInfo;
+	if (transformationData.task_id) {
+		taskInfo = await (
+			await eleApiService.getTask(transformationData.task_id)
+		).json();
 	}
 
-	const transformationDataResponse = await eleApiService.getTransformation(
-		transformationId
-	);
+	console.log("taskInfo", taskInfo);
 
-	const transformationData = await transformationDataResponse.json();
-
-	const transformedFirstEntryData = await applyTransformationToEntry(
-		transformationId,
-		firstEntryId
-	);
-
-	const pathsResponse = await eleApiService.getEntryPaths(
-		dictionaryId,
-		firstEntryId
-	);
-	const paths = await pathsResponse.json();
-	console.log("paths", paths);
+	console.log("transformationData", transformationData);
+	const {
+		transformedEntryDataJson,
+		transformedEntryDataXml,
+		transformedEntryDataRdf,
+	} = await applyTransformationToEntry(transformationId, firstEntryId);
+	const paths = await getPaths(dictionaryId, firstEntryId);
 
 	return {
 		entries,
 		firstEntry,
-		transformedFirstEntryData,
-		dictionaryEntry,
-		dictionaryLemma,
+		transformedEntryDataJson,
+		transformedEntryDataXml,
+		transformedEntryDataRdf,
+		dictionaryEntry: dictionaryData.entry,
+		dictionaryLemma: dictionaryData.lemma,
 		dictionaryLexicographicResource,
-		dictionaryName,
-		dictionaryMetadata,
+		dictionaryName: dictionaryData.name,
+		dictionaryMetadata: dictionaryData.dictionary_metadata,
 		transformationId,
 		transformationData,
 		paths,
+		taskInfo,
 	};
 }
 
@@ -418,7 +635,9 @@ export function TransformDictionary() {
 	const {
 		entries,
 		firstEntry,
-		transformedFirstEntryData,
+		transformedEntryDataJson,
+		transformedEntryDataXml,
+		transformedEntryDataRdf,
 		dictionaryEntry,
 		dictionaryLemma,
 		dictionaryLexicographicResource,
@@ -427,64 +646,75 @@ export function TransformDictionary() {
 		transformationId,
 		transformationData,
 		paths,
+		taskInfo,
 	} = useLoaderData() as TransformLoaderData;
 
+	const actionData = useActionData();
+	console.log("actionData", actionData);
+
+	useEffect(() => {
+		if (actionData && actionData.body) {
+			const url = URL.createObjectURL(actionData.body);
+			const link = document.createElement("a");
+			link.href = url;
+
+			const filename = actionData.headers["Content-Disposition"]
+				.split("filename=")[1]
+				.replace(/"/g, "");
+			link.setAttribute("download", filename);
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+		}
+	}, [actionData]);
+
 	const [selectedEntry, setSelectedEntry] = useState({
-		originalXml: beautify(firstEntry.text),
-		transformedJson: transformedFirstEntryData,
+		originalXml: firstEntry.text,
+		transformedJson: transformedEntryDataJson,
+		transformedXml: transformedEntryDataXml,
+		transformedRdf: transformedEntryDataRdf,
 	});
-	const [transformation, setTransformation] = useState(
-		transformationData.transformation
+
+	const flatTransformation = getOutElementPaths(
+		transformationData.transformation.children[0]
 	);
 
-	const [entriesList, setEntriesList] = useState(() => {
-		let options = [];
-		entries.entries.forEach((entry) => {
-			options.push({ label: entry.lemma, value: entry.id });
-		});
-		return options;
-	});
+	const [allowTransform, setAllowTransform] = useState(
+		taskInfo.status &&
+			(taskInfo.status === "completed" || taskInfo.status === "error")
+	);
+	const [allowDownload, setAllowDownload] = useState(
+		transformationData.exported_dictionary_path !== null &&
+			transformationData.exported_dictionary_path !== undefined
+	);
 
-	const [entryPaths, setEntryPaths] = useState(() => {
-		let options = [];
-		paths.paths.forEach((path: string) => {
-			options.push({ label: path, value: `.//${path}` });
-		});
-		return options;
-	});
+	const [entriesList, setEntriesList] = useState(() =>
+		generateEntryOptions(entries)
+	);
+	const [entryPaths, setEntryPaths] = useState(() =>
+		generatePathOptions(paths)
+	);
 
 	const [isAdvancedVisible, setAdvancedVisible] = useState(
 		transformationData.advanced_mode
 	);
 
-	const { organisationId, dictionaryId } = useParams();
+	const [transformationStatus, setTransformationStatus] = useState(
+		transformationData.transformation_status || "METADATA"
+	);
 
-	const prettyXml = beautify(firstEntry.text);
+	const { organisationId, dictionaryId } = useParams();
 
 	const handleEntryChange = async (
 		selectedOption: React.ChangeEvent<HTMLSelectElement>
 	) => {
-		// Parse the selected entry ID from the selected option's value
 		const selectedEntryId = parseInt(selectedOption.value, 10);
-
-		// Fetch the transformed entry data
-		const transformedEntry = await applyTransformationToEntry(
-			transformationId,
-			selectedEntryId
-		);
-
-		// Fetch the original entry data
-		const entryResponse = await eleApiService.getEntry(
+		const entryData = await fetchEntryData(
 			dictionaryId,
-			selectedEntryId
+			selectedEntryId,
+			transformationId
 		);
-		const entry = await entryResponse.json();
-
-		// Update the state with the new selected entry data
-		setSelectedEntry({
-			originalXml: beautify(entry.text),
-			transformedJson: transformedEntry,
-		});
+		setSelectedEntry(entryData);
 	};
 
 	let buttons = [
@@ -493,25 +723,44 @@ export function TransformDictionary() {
 			type: "submit",
 			id: dictionaryId,
 			value: "update",
+			edit: true,
 		},
 		{
 			name: "Reset",
 			type: "submit",
 			id: dictionaryId,
 			value: "reset",
+			edit: true,
 		},
 		{
 			name: "Import",
 			type: "submit",
 			id: dictionaryId,
 			value: "import",
+			edit: true,
+		},
+		{
+			name: allowTransform ? "Transform" : "Transform in progress...",
+			type: "submit",
+			id: dictionaryId,
+			value: "transform",
+			edit: allowTransform,
+		},
+		{
+			name: "Download",
+			type: "submit",
+			id: dictionaryId,
+			value: "get_file",
+			edit: allowDownload,
 		},
 	];
+
+	let ref = useRef(null);
 
 	return (
 		<div className="flex flex-col md:flex-row">
 			<div className="w-full md:w-1/2 p-4">
-				<Form method="post">
+				<Form ref={ref} method="post">
 					<input
 						type="hidden"
 						name="dictionary-entry"
@@ -558,6 +807,12 @@ export function TransformDictionary() {
 						value={isAdvancedVisible.toString()}
 					/>
 
+					<input
+						type="hidden"
+						name="exported_dictionary_path"
+						value={transformationData.exported_dictionary_path || ""}
+					/>
+
 					<div className="flex justify-between items-center mb-4">
 						<EleSearchableDropdownField
 							label="Entry"
@@ -576,19 +831,33 @@ export function TransformDictionary() {
 					</div>
 					<TransformTree3
 						entry={selectedEntry.transformedJson}
-						transformation={transformation}
+						flatTransformation={flatTransformation}
 						dictionaryMetadata={dictionaryMetadata}
 						entryPaths={entryPaths}
 						isAdvancedVisible={isAdvancedVisible}
 						dictionaryId={dictionaryId}
+						existingControlledValues={
+							transformationData.transformation.copyToOutElt || {}
+						}
+						existingXlat={
+							transformationData.transformation.children[0]?.children
+								.find((el) => el.outElement === "partOfSpeech")
+								?.textVals.find((el) => el.outElement === "tag")?.xlat || {}
+						}
+						transformationStatus={transformationStatus}
+						setTransformationStatus={setTransformationStatus}
+						formRef={ref}
+						taskInfo={taskInfo}
 					/>
 				</Form>
 			</div>
 
 			<EleTabs
 				originalXml={selectedEntry.originalXml}
-				transformedResult={selectedEntry.transformedJson}
-				jsonSpec={transformation}
+				transformedJson={selectedEntry.transformedJson}
+				transformedXml={selectedEntry.transformedXml}
+				transformedRdf={selectedEntry.transformedRdf}
+				jsonSpec={transformationData.transformation}
 			/>
 		</div>
 	);

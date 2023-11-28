@@ -1,9 +1,9 @@
-import { EleCollapsibleElement } from "../ele-collapsible";
-import { EleInputField } from "../ele-input-field";
-import { EleDropdownField } from "../ele-dropdown-field";
-import { attributeDefaultValues } from "../../dmlex-spec";
+import { EleCollapsibleElement } from "../elements/ele-collapsible";
+import { EleInputField } from "../elements/ele-input-field";
+import { EleDropdownField } from "../elements/ele-dropdown-field";
+import { attributeDefaultValues } from "../dmlex-spec";
 import React, { useState } from "react";
-import { EleSearchableDropdownField } from "../ele-searchable-dropdown-field";
+import { EleSearchableDropdownField } from "../elements/ele-searchable-dropdown-field";
 
 export const EleTransformationExampleElement: React.FC<any> = ({
 	id,

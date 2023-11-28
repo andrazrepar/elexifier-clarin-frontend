@@ -1,6 +1,6 @@
 import { Form, Link, useNavigate } from "react-router-dom";
-import { EleButton } from "../shared/client/ele-button";
-import { EleInputField } from "../shared/client/ele-input-field";
+import { EleButton } from "../shared/elements/ele-button";
+import { EleInputField } from "../shared/elements/ele-input-field";
 import { z, ZodError } from "zod";
 import { useEffect, useState } from "react";
 import eleApiService from "../shared/ele-api-service";

@@ -1,11 +1,11 @@
-import { EleCollapsibleElement } from "../ele-collapsible";
-import { EleInputField } from "../ele-input-field";
-import { EleDropdownField } from "../ele-dropdown-field";
-import { attributeDefaultValues } from "../../dmlex-spec";
+import { EleCollapsibleElement } from "../elements/ele-collapsible";
+import { EleInputField } from "../elements/ele-input-field";
+import { EleDropdownField } from "../elements/ele-dropdown-field";
+import { attributeDefaultValues } from "../dmlex-spec";
 import React, { useState } from "react";
-import { EleSearchableDropdownField } from "../ele-searchable-dropdown-field";
+import { EleSearchableDropdownField } from "../elements/ele-searchable-dropdown-field";
 
-export const EleTransformationTranscriptionElement: React.FC<any> = ({
+export const EleTransformationDefinitionElement: React.FC<any> = ({
 	id,
 	handleExpand,
 	label,
@@ -39,7 +39,7 @@ export const EleTransformationTranscriptionElement: React.FC<any> = ({
 					existingValue={props.existingValues?.inSelector}
 				/>
 				<EleDropdownField
-					label="Attribute"
+					label="attribute"
 					name={`${id}-attribute`}
 					className="flex-grow py-2 px-3 rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
 					options={attributeDefaultValues}
@@ -50,34 +50,67 @@ export const EleTransformationTranscriptionElement: React.FC<any> = ({
 				/>
 
 				<EleInputField
-					label="Regex"
+					label="regex"
 					name={`${id}-regex`}
 					className="text-sm font-medium text-indigo-600"
 					existingValue={
 						props.existingValues?.textVals?.find(
-							(el: any) => el.outElement === "text"
+							(el: any) => el.outElement === "value"
 						)?.regex
 					}
 				/>
 
 				<EleInputField
-					label="RegexGroup"
+					label="regexGroup"
 					name={`${id}-regexGroup`}
 					className="text-sm font-medium text-indigo-600"
 					existingValue={
 						props.existingValues?.textVals?.find(
-							(el: any) => el.outElement === "text"
+							(el: any) => el.outElement === "value"
 						)?.regexGroup
 					}
 				/>
 
 				<EleInputField
-					label="Scheme"
-					name={`${id}-scheme`}
+					label="inSelector (for definitionType)" // TODO come up with something better
+					name={`${id}-definitonType-inSelector`}
 					className="text-sm font-medium text-indigo-600"
 					existingValue={
 						props.existingValues?.textVals?.find(
-							(el: any) => el.outElement === "scheme"
+							(el: any) => el.outElement === "definitionType"
+						)?.regex
+					}
+				/>
+
+				<EleDropdownField
+					label="attribute"
+					name={`${id}-definitionType-attribute`}
+					className="flex-grow py-2 px-3 rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50"
+					options={attributeDefaultValues}
+					defaultValue={
+						attributeDefaultValues.find((item) => item.label === "innerText")
+							?.value
+					}
+				/>
+
+				<EleInputField
+					label="regex"
+					name={`${id}-definitionType-regex`}
+					className="text-sm font-medium text-indigo-600"
+					existingValue={
+						props.existingValues?.textVals?.find(
+							(el: any) => el.outElement === "definitionType"
+						)?.regex
+					}
+				/>
+
+				<EleInputField
+					label="regexGroup"
+					name={`${id}-definitionType-regexGroup`}
+					className="text-sm font-medium text-indigo-600"
+					existingValue={
+						props.existingValues?.textVals?.find(
+							(el: any) => el.outElement === "definitionType"
 						)?.regexGroup
 					}
 				/>
