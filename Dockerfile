@@ -5,7 +5,7 @@ WORKDIR /elexifier
 add . /elexifier
 
 RUN npm install
-RUN npm build
+RUN npm run build
 
 EXPOSE 4173
 
