@@ -30,7 +30,7 @@ export async function action({ request }) {
 	console.log(intent, dictionaryId);
 
 	switch (intent) {
-		case "Delete":
+		case "delete":
 			const deleteDictionaryResponse = await eleApiService.deleteFile(
 				dictionaryId
 			);

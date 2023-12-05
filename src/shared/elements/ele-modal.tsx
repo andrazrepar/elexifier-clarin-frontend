@@ -94,22 +94,28 @@ export default function EleModal({
 													again, please select the "Transform" button and come
 													back later.
 												</p>
-											) : (
+											) : props.taskInfo.status === "queued" ||
+											  props.taskInfo.status === "running" ? (
 												<p className="text-sm text-gray-500">
 													A transformation is currently in progress. Please come
 													back later.
 												</p>
+											) : (
+												<p className="text-sm text-gray-500">
+													A transformation has not yet been completed. Click
+													"Transform" and come back later.
+												</p>
 											)
 										) : (
 											<p className="text-sm text-gray-500">
-												A transformation has not yet been completed. Click
+												A transformation has not yet been completed 2. Click
 												"Transform" and come back later.
 											</p>
 										)}
 									</div>
 								</div>
 								{props.taskInfo ? (
-									props.taskInfo.status === "completed" && (
+									props.taskInfo.status === "completed" ? (
 										<div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
 											<EleButton
 												type="submit"
@@ -123,6 +129,16 @@ export default function EleModal({
 												value="transform"
 												label="Transform"
 												className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+												onClick={handleSubmit("transform")}
+											></EleButton>
+										</div>
+									) : (
+										<div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-1 sm:gap-3 justify-items-center">
+											<EleButton
+												type="submit"
+												value="transform"
+												label="Transform"
+												className="mt-3 inline-flex justify-center w-full rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
 												onClick={handleSubmit("transform")}
 											></EleButton>
 										</div>

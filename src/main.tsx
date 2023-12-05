@@ -9,7 +9,7 @@ import {
 
 import { App, loader as appLoader } from "./routes/app";
 import ErrorPage from "./routes/error-page";
-import Index from "./routes/index";
+import { Index, loader as indexLoader } from "./routes/index";
 import Dictionaries, {
 	loader as dictionariesLoader,
 	action as dictionariesAction,
@@ -51,6 +51,7 @@ const router = createBrowserRouter([
 			{
 				index: true,
 				element: <Index />,
+				loader: indexLoader,
 			},
 			{
 				path: "login",

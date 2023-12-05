@@ -1,4 +1,10 @@
-export default function Index() {
+import { redirect } from "react-router-dom";
+
+export async function loader({ params }) {
+	return redirect("/app");
+}
+
+export function Index() {
 	return (
 		<p id="zero-state">
 			This is a demo for React Router.

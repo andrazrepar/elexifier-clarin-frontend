@@ -535,7 +535,9 @@ export async function action({ request, params }) {
 				downloadTaskBody
 			);
 			console.log(downloadTaskResponse);
-			return redirect("/app/tasks");
+			return {
+				success: true,
+			};
 
 		case "reload_controlled_values":
 			console.log("RELOAD CONTROLLED VALUES");
